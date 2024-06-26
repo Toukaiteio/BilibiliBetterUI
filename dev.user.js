@@ -528,7 +528,7 @@ NewStyleSheet.innerHTML += `
     div.NewGuideBar.Shrink ~ div.search-layout.clearfix{
       padding-left:0px !important;
     }
-    (div.NewGuideBar.Shrink ~ main.bili-feed4-layout) > div.feed2{
+    div.NewGuideBar.Shrink ~  div.feed2{
       padding-left:0px !important;
     }
     main.channel-layout{
