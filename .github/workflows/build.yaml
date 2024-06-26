@@ -1,0 +1,74 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build script
+      run: |
+        cat << 'EOF' > build_script.js
+        const fs = require('fs');
+        const { minify } = require('terser');
+
+        const inputFilePath = 'dev.user.js';
+        const outputDirectory = 'release';
+        const outputFilePath = `${outputDirectory}/dev.min.user.js`;
+
+        fs.mkdirSync(outputDirectory, { recursive: true });
+
+        fs.readFile(inputFilePath, 'utf8', (err, data) => {
+          if (err) {
+            console.error(`Error reading file: ${err}`);
+            return;
+          }
+
+          const lines = data.split('\n');
+          const header = lines.slice(0, lines.findIndex(line => line.trim().startsWith('//')) + 1).join('\n');
+          const script = lines.slice(lines.findIndex(line => line.trim().startsWith('//')) + 1).join('\n');
+
+          minify(script, {
+            output: {
+              comments: /@preserve|@license|@cc_on/i
+            }
+          }).then(({ code }) => {
+            fs.writeFile(outputFilePath, `${header}\n${code}`, 'utf8', err => {
+              if (err) {
+                console.error(`Error writing file: ${err}`);
+                return;
+              }
+              console.log('Script has been minified and saved to', outputFilePath);
+            });
+          }).catch(err => {
+            console.error(`Error minifying script: ${err}`);
+          });
+        });
+        EOF
+
+        # Run the custom script
+        node build_script.js
+
+    - name: Commit and push changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add release/dev.min.user.js
+        git commit -m "Auto Build"
+        git push origin HEAD:$GITHUB_REF
