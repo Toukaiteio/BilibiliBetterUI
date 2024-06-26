@@ -1261,10 +1261,10 @@ BuildPageAfterLoaded().then((target) => {
       document.getElementById("MenuSwitch").onclick = () => {
         if (NewGuideBar.classList.contains("Shrink")) {
           NewGuideBar.classList.remove("Shrink");
-          localStorage.setItem("BarState","Hide");
+          localStorage.setItem("BarState","Show");
         } else {
           NewGuideBar.classList.add("Shrink");
-          localStorage.setItem("BarState","Show");
+          localStorage.setItem("BarState","Hide");
         }
       };
     }
