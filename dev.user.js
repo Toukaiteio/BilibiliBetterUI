@@ -4,9 +4,14 @@
 // @version      0.1.2
 // @description  优化b站
 // @author       Daiyosei
+// @copyright    2024, Daiyosei (https://github.com/Toukaiteio)
 // @match        https://*.bilibili.com
 // @match        https://*.bilibili.com/*
 // @match        https://*.bilibili.com/*/*
+// @homepageURL     https://github.com/Toukaiteio/BilibiliBetterUI
+// @supportURL      https://github.com/Toukaiteio/BilibiliBetterUI/issues
+// @downloadURL     https://raw.githubusercontent.com/Toukaiteio/BilibiliBetterUI/master/release/BetterUI.min.user.js
+// @updateURL       https://raw.githubusercontent.com/Toukaiteio/BilibiliBetterUI/master/release/BetterUI.min.user.js
 // @icon         data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
 // @grant        none
 // @run-at       document-end
