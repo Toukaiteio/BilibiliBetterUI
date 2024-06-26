@@ -31,7 +31,7 @@ jobs:
 
         const inputFilePath = 'dev.user.js';
         const outputDirectory = 'release';
-        const outputFilePath = `${outputDirectory}/dev.min.user.js`;
+        const outputFilePath = `${outputDirectory}/BetterUI.min.user.js`;
 
         fs.mkdirSync(outputDirectory, { recursive: true });
 
