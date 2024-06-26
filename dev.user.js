@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BetterUI
 // @namespace    http://tampermonkey.net/
-// @version      0.1.2
+// @version      0.1.3
 // @description  优化b站
 // @author       Daiyosei
 // @copyright    2024, Daiyosei (https://github.com/Toukaiteio)
@@ -487,6 +487,34 @@ NewStyleSheet.innerHTML = `
     }
 `;
 NewStyleSheet.innerHTML += `
+    div.toolbar-right-ai.disabled,div.reply-decorate,div.bili-avatar-pendent-dom,div.reply-notice,a.pop-live-small-mode.part-1,div.search-input,a#right-bottom-banner,a#bannerAd{
+      display:none !important;
+    }
+    div.root-reply-avatar{
+      padding-top: 2px !important;
+    }
+    div.sub-user-info div.sub-user-name,div.user-info div.user-name{
+      color:var(--GuideBarTextColor) !important;
+
+    }
+    div.user-info{
+      margin-bottom: 0px !important;
+      line-height: 16px;
+      height: 16px;
+    }
+    span.reply-content{
+      color:var(--GuideBarTextColor) !important;
+      font-family: "Roboto", "Arial", sans-serif;
+      font-size: 14px !important;
+      font-weight: 400;
+      line-height: 20px !important;
+    }
+    div.sub-user-info div.sub-user-name[data-user-id="9024239"],div.user-info div.user-name[data-user-id="9024239"]{
+      color:gold !important;
+    }
+    div.sub-reply-avatar{
+      padding-top: 14px !important;
+    }
     div#biliMainHeader{
       min-height:64px !important;
       height:64px !important;
@@ -567,42 +595,50 @@ NewStyleSheet.innerHTML += `
     }
     div.Popup.Deactive{
       pointer-event:none;
-      opacity:0;
-      height:0px !important;
     }
     div.Popup{
+      opacity:0;
+      height:0px !important;
       position:absolute;
       transition:all .4s;
       background:#fff;
     }
     div.Popup.Active{
-      opacity:1;
-      pointer-event:unset;
+      opacity:1 !important;
+      pointer-event:unset !important;
+      height:fit-content !important;
     }
     div.NewHeadBar-Following-Popup{
       top:64px;
-      width:320px;
       filter:drop-shadow(0px 0px 8px var(--GuideBarSpiltorBG));
       border-radius:8px;
-      overflow:hidden;
+      overflow:scroll;
       right:0px;
       box-sizing:border-box;
       padding:8px;
       display:flex;
       flex-direction:column;
+      flex-wrap:wrap;
     }
     div.NewHeadBar-Profile-Popup{
       top:64px;
       width:320px;
       filter:drop-shadow(0px 0px 8px var(--GuideBarSpiltorBG));
       border-radius:8px;
-      overflow:hidden;
+      overflow:scroll;
       right:0px;
       box-sizing:border-box;
       padding:8px;
       display:flex;
       flex-direction:column;
     }
+    div.NewHeadBar-Profile-Popup::-webkit-scrollbar{
+      display:none;
+    }
+    div.NewHeadBar-Following-Popup::-webkit-scrollbar{
+      display:none;
+    }
+
     #PopUserInfo{
       box-sizing:border-box;
       display:flex;
@@ -663,13 +699,13 @@ NewStyleSheet.innerHTML += `
       font-size:16px;
       font-family: "Roboto", "Arial", sans-serif;
       font-weight:500;
+      box-sizing: border-box;
+      padding: 6px
     }
     .HistoryList{
       flex:1;
+      max-height:75vh;
       width:100%;
-    }
-    .HistoryList::-webkit-scrollbar{
-      display:none;
     }
     .UserHistoryItem{
       border-radius:4px;
@@ -682,6 +718,12 @@ NewStyleSheet.innerHTML += `
       box-sizing:border-box;
       padding:3px;
       transition:background .3s;
+    }
+    #FollowingPopup .UserHistoryItem{
+      width:320px !important;
+    }
+    #FollowingPopup .UserHistory{
+      flex-wrap:wrap;
     }
     .UserHistoryItem:hover{
       background:var(--GuideBarHover)
@@ -743,9 +785,7 @@ NewStyleSheet.innerHTML += `
       text-align:right;
     }
 
-    div.search-input{
-      display:none !important;
-    }
+    
 `;
 const NewHeadBar = document.createElement("div");
 const GetSearchWords = () => {
