@@ -42,8 +42,9 @@ jobs:
           }
 
           const lines = data.split('\n');
-          const header = lines.slice(0, lines.findIndex(line => line.trim().startsWith('//')) + 1).join('\n');
-          const script = lines.slice(lines.findIndex(line => line.trim().startsWith('//')) + 1).join('\n');
+          const headerEndIndex = lines.findIndex(line => line === '// ==/UserScript==');
+          const header = lines.slice(0, headerEndIndex + 1).join('\n');
+          const script = lines.slice(headerEndIndex + 1).join('\n');
 
           minify(script, {
             output: {
