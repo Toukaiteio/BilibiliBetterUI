@@ -529,13 +529,16 @@ NewStyleSheet.innerHTML += `
       padding-left:0px !important;
     }
     div.NewGuideBar.Shrink ~  div.feed2{
-      padding-left:0px !important;
+      padding-left:140px !important;
     }
     main.channel-layout{
         padding:unset;
         box-sizing:border-box;
         padding:6px;
         padding-left:246px;
+    }
+    div.NewGuideBar.Shrink ~  main.channel-layout{
+      padding-left:6px !important;
     }
     div.palette-button-outer{
         pointer-events:unset;
