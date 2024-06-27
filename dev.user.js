@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BetterUI
 // @namespace    http://tampermonkey.net/
-// @version      0.1.3
+// @version      0.1.3.1
 // @description  优化b站
 // @author       Daiyosei
 // @copyright    2024, Daiyosei (https://github.com/Toukaiteio)
@@ -43,7 +43,6 @@ const JumpMapping = {
   SELF: "https://t.bilibili.com/",
   LOGO: "https://www.bilibili.com/",
   HISTORY: "https://www.bilibili.com/account/history",
-  COLLECT: "https://space.bilibili.com/9024239/favlist",
 };
 const HeaderMapping = {
   home: "div.bili-header.large-header",
@@ -487,7 +486,7 @@ NewStyleSheet.innerHTML = `
     }
 `;
 NewStyleSheet.innerHTML += `
-    div.toolbar-right-ai.disabled,div.reply-decorate,div.bili-avatar-pendent-dom,div.reply-notice,a.pop-live-small-mode.part-1,div.search-input,a#right-bottom-banner,a#bannerAd{
+    div#activity_vote,div.toolbar-right-ai.disabled,div.reply-decorate,div.bili-avatar-pendent-dom,div.reply-notice,a.pop-live-small-mode.part-1,div.search-input,a#right-bottom-banner,a#bannerAd{
       display:none !important;
     }
     div.root-reply-avatar{
@@ -1005,6 +1004,9 @@ const BuildFollowingSquare = (Data) => {
 const BuildPopupProfile = (Data) => {
   const target = document.getElementById("ProfilePopup");
   document.getElementById("UserAvatar").src = Data.face + "@120w_120h_1c";
+  document.getElementById("COLLECT").onclick = () =>{
+    location.href = `https://space.bilibili.com/${Data.mid}/favlist`;
+  }
   target.innerHTML = `
   <div class="PopUserInfo" id="PopUserInfo">
     <div class="PopUserAvatar">
