@@ -47,6 +47,9 @@ jobs:
           const script = lines.slice(headerEndIndex + 1).join('\n');
 
           minify(script, {
+            mangle: {
+              toplevel: true
+            },
             output: {
               comments: /@preserve|@license|@cc_on/i
             }
