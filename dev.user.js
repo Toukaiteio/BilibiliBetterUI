@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BetterUI
 // @namespace    http://tampermonkey.net/
-// @version      0.1.3.1
+// @version      0.1.3.2
 // @description  优化b站
 // @author       Daiyosei
 // @copyright    2024, Daiyosei (https://github.com/Toukaiteio)
@@ -698,8 +698,19 @@ NewStyleSheet.innerHTML += `
       font-size:16px;
       font-family: "Roboto", "Arial", sans-serif;
       font-weight:500;
+      display:flex;
       box-sizing: border-box;
-      padding: 6px
+      padding: 6px;
+    }
+    .UserHistoryTitle-Item{
+      width:100%;
+      height:100%;
+    }
+    .UserHistoryTitle-Refresh{
+      text-align:right;
+      color:var(--brand_blue);
+      user-select:none;
+      cursor:pointer;
     }
     .HistoryList{
       flex:1;
@@ -827,7 +838,8 @@ NewHeadBar.innerHTML = `
 `;
 const NewGuideBar = document.createElement("div");
 NewGuideBar.classList.add("NewGuideBar");
-if(Current === "player" || localStorage.getItem("BarState") === "Hide") NewGuideBar.classList.add("Shrink");
+if (Current === "player" || localStorage.getItem("BarState") === "Hide")
+  NewGuideBar.classList.add("Shrink");
 NewGuideBar.id = "NewGuideBar";
 NewGuideBar.innerHTML = `
     <div class="NewGuideBar-Square">
@@ -964,9 +976,9 @@ const HasNew = (UploaderMid, Videos) => {
   const record = localStorage.getItem("UploaderCheckedCache-" + UploaderMid);
   if (Videos[0]["VideoLink"].includes(record)) return "";
   else {
-    DetectingVideos[UploaderMid] = Videos[0]["VideoLink"].includes("/video/") ?
-    Videos[0]["VideoLink"].split("/video/")[1].replaceAll("/", "") :
-    Videos[0]["VideoLink"].split("/read/")[1].replaceAll("/", "") 
+    DetectingVideos[UploaderMid] = Videos[0]["VideoLink"].includes("/video/")
+      ? Videos[0]["VideoLink"].split("/video/")[1].replaceAll("/", "")
+      : Videos[0]["VideoLink"].split("/read/")[1].replaceAll("/", "");
     return " HasNew";
   }
 };
@@ -989,9 +1001,13 @@ const BuildFollowingSquare = (Data) => {
       .replace("#AuthorMid#", Data[i].Usermid)
       .replace(
         "#AuthorLatestVideo#",
-        Data[i].Videos[0]["VideoLink"].includes("/video/") ?
-        Data[i].Videos[0]["VideoLink"].split("/video/")[1].replaceAll("/", "") :
-        Data[i].Videos[0]["VideoLink"].split("/read/")[1].replaceAll("/", "") 
+        Data[i].Videos[0]["VideoLink"].includes("/video/")
+          ? Data[i].Videos[0]["VideoLink"]
+              .split("/video/")[1]
+              .replaceAll("/", "")
+          : Data[i].Videos[0]["VideoLink"]
+              .split("/read/")[1]
+              .replaceAll("/", "")
       )
       .replace("#HasNew#", HasNew(Data[i].Usermid, Data[i].Videos));
     OriString_Start += CopiedValue;
@@ -1001,12 +1017,68 @@ const BuildFollowingSquare = (Data) => {
     `<div class="NewGuideBar-Splitor"></div>` + OriString_Start + OriString_End;
   BuildPopupSubscribe(Data);
 };
+const RefreshHistoryList = () => {
+  return new Promise((resolve, reject) => {
+    fetch(
+      "https://api.bilibili.com/x/web-interface/history/cursor?type=archive&ps=5",
+      {
+        credentials: "include",
+      }
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.code === 0) {
+          const vList = data.data.list;
+          const TemplateString = `<div class="UserHistoryItem" onclick="(()=>{location.href='https://www.bilibili.com/video/#VideoBvid##VideoProgress#'})()">
+              <div class="HistoryVideoCover">
+                <img src="#VideoCover#">
+              </div>
+              <div class="HistoryVideoInfo">
+                <div class="HistoryVideoTitle">
+                  #VideoTitle#
+                </div>
+                <div class="HistoryVideoUploaderName">
+                  <div class="HistoryLeft">#VideoHasWatched#</div>
+                  <div class="HistoryRight">#VideoUploaderName#</div>
+                  
+                </div>
+              </div>
+            </div>`;
+          let OriString = "";
+          for (const i of vList) {
+            let thisObject = new String(TemplateString);
+            thisObject = thisObject
+              .replace("#VideoBvid#", i.history.bvid)
+              .replace(
+                "#VideoProgress#",
+                `?p=${i.history.page}` +
+                  (i.progress / i.duration < 0.9 &&
+                  i.progress / i.duration > 0.1
+                    ? `&t=${i.progress}`
+                    : "")
+              )
+              .replace("#VideoCover#", i.cover + "@256w_144h_1c")
+              .replace("#VideoTitle#", i.title)
+              .replace("#VideoUploaderName#", i.author_name)
+              .replace(
+                "#VideoHasWatched#",
+                i.progress / i.duration > 0
+                  ? `已看${((i.progress / i.duration) * 100).toFixed(2)}%`
+                  : i.progress < 0
+                  ? "已看完"
+                  : "还未看"
+              );
+            OriString += thisObject;
+          }
+          resolve(OriString);
+        }
+      })
+      .catch((e) => reject(e));
+  });
+};
 const BuildPopupProfile = (Data) => {
   const target = document.getElementById("ProfilePopup");
   document.getElementById("UserAvatar").src = Data.face + "@120w_120h_1c";
-  document.getElementById("COLLECT").onclick = () =>{
-    location.href = `https://space.bilibili.com/${Data.mid}/favlist`;
-  }
   target.innerHTML = `
   <div class="PopUserInfo" id="PopUserInfo">
     <div class="PopUserAvatar">
@@ -1025,66 +1097,24 @@ const BuildPopupProfile = (Data) => {
     </div>
   </div>
   `;
-  fetch(
-    "https://api.bilibili.com/x/web-interface/history/cursor?type=archive&ps=5",
-    {
-      credentials: "include",
-    }
-  )
-    .then((res) => res.json())
-    .then((data) => {
-      if (data.code === 0) {
-        const vList = data.data.list;
-        const TemplateString = `<div class="UserHistoryItem" onclick="(()=>{location.href='https://www.bilibili.com/video/#VideoBvid##VideoProgress#'})()">
-            <div class="HistoryVideoCover">
-              <img src="#VideoCover#">
-            </div>
-            <div class="HistoryVideoInfo">
-              <div class="HistoryVideoTitle">
-                #VideoTitle#
-              </div>
-              <div class="HistoryVideoUploaderName">
-                <div class="HistoryLeft">#VideoHasWatched#</div>
-                <div class="HistoryRight">#VideoUploaderName#</div>
-                
-              </div>
-            </div>
-          </div>`;
-        let OriString = "";
-        for (const i of vList) {
-          let thisObject = new String(TemplateString);
-          thisObject = thisObject
-            .replace("#VideoBvid#", i.history.bvid)
-            .replace(
-              "#VideoProgress#",
-              `?p=${i.history.page}` +
-                (i.progress / i.duration < 0.9 && i.progress / i.duration > 0.1
-                  ? `&t=${i.progress}`
-                  : "")
-            )
-            .replace("#VideoCover#", i.cover + "@256w_144h_1c")
-            .replace("#VideoTitle#", i.title)
-            .replace("#VideoUploaderName#", i.author_name)
-            .replace(
-              "#VideoHasWatched#",
-              i.progress / i.duration > 0
-                ? `已看${((i.progress / i.duration) * 100).toFixed(2)}%`
-                : "还未看"
-            );
-          OriString += thisObject;
-        }
-        target.innerHTML += `
-            <div class="UserHistory">
-              <div class="UserHistoryTitle">
-                观看历史
-              </div>
-              <div class="HistoryList">
-                ${OriString}
-              </div>
-            </div>
-        `;
-      }
-    });
+  RefreshHistoryList().then((HL) => {
+    target.innerHTML += `
+    <div class="UserHistory">
+      <div class="UserHistoryTitle">
+        <div class="UserHistoryTitle-Content UserHistoryTitle-Item">观看历史</div>
+        <a id="UserHistoryTitleRefresh" class="UserHistoryTitle-Refresh  UserHistoryTitle-Item"  Belong="PopUp">刷新</a>
+      </div>
+      <div class="HistoryList" id="HistoryList" Belong="PopUp">
+        ${HL}
+      </div>
+    </div>
+    `;
+    document.getElementById("UserHistoryTitleRefresh").onclick = () => {
+      RefreshHistoryList().then((HL) => {
+        document.getElementById("HistoryList").innerHTML = HL;
+      });
+    };
+  });
 };
 const BuildPopupSubscribe = (Data) => {
   const target = document.getElementById("FollowingPopup");
@@ -1130,188 +1160,202 @@ const PopupController = {
   currentPopingup: null,
   triggerEle: null,
 };
-BuildPageAfterLoaded().then((target) => {
-  document.head.appendChild(NewStyleSheet);
-  target.insertBefore(NewGuideBar,target.firstChild);
-  const __temp__ = setInterval(() => {
-    const target = document.querySelector(
-      "a.header-entry-mini picture[class='v-img'] img"
-    );
-    if (target) {
-      try {
-        document.querySelector(HeaderMapping[Current]).appendChild(NewHeadBar);
-      } catch (e) {
-        console.log(e);
-        console.trace();
-      }
-      clearInterval(__temp__);
-      if (
-        localStorage.getItem("ContentCacheTimestamp") === null ||
-        Date.now() - parseInt(localStorage.getItem("ContentCacheTimestamp")) >
-          300 * 1000
-      ) {
-        fetch("https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/nav", {
-          method: "GET",
-          credentials: "include",
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            if (data.code === 0) {
-              const vList = data.data;
-              NewVideos["HasNewContent"] = vList["has_more"];
-              for (const i of vList.items) {
-                const AuthorData = i.author;
-                const Avatar = AuthorData.face;
-                const Username = AuthorData.name;
-                const Userspace = AuthorData.jump_url;
-                const Usermid = AuthorData.mid;
-                const VideoTitle = i.title;
-                const VideoLink = i.jump_url;
-                const VideoCover = i.cover;
-                if (!NewVideos["Contents"][Usermid.toString()])
-                  NewVideos["Contents"][Usermid.toString()] = {
-                    Avatar: Avatar,
-                    Username: Username,
-                    Userspace: Userspace,
-                    Usermid: Usermid,
-                    Videos: [],
-                  };
-                NewVideos["Contents"][Usermid.toString()]["Videos"].push({
-                  VideoTitle: VideoTitle,
-                  VideoLink: VideoLink,
-                  VideoCover: VideoCover,
-                });
-              }
-              BuildFollowingSquare(NewVideos["Contents"]);
-              localStorage.setItem("ContentCacheTimestamp", Date.now());
-              localStorage.setItem(
-                "ContentCache",
-                JSON.stringify(NewVideos["Contents"])
-              );
-              for (const i in JumpMapping) {
-                const Target = document.getElementById(i);
-                if (Target) {
-                  Target.onclick = () => {
-                    if (location.href !== JumpMapping[i]) {
-                      location.href = JumpMapping[i];
-                    } else {
-                      location.reload();
-                    }
-                  };
+if (Current !== "unknown") {
+  BuildPageAfterLoaded().then((target) => {
+    document.head.appendChild(NewStyleSheet);
+    target.insertBefore(NewGuideBar, target.firstChild);
+    const __temp__ = setInterval(() => {
+      const target = document.querySelector(HeaderMapping[Current]);
+      if (target) {
+        try {
+          document
+            .querySelector(HeaderMapping[Current])
+            .appendChild(NewHeadBar);
+        } catch (e) {
+          console.log(e);
+          console.trace();
+        }
+        clearInterval(__temp__);
+        if (
+          localStorage.getItem("ContentCacheTimestamp") === null ||
+          Date.now() - parseInt(localStorage.getItem("ContentCacheTimestamp")) >
+            300 * 1000
+        ) {
+          fetch("https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/nav", {
+            method: "GET",
+            credentials: "include",
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              if (data.code === 0) {
+                const vList = data.data;
+                NewVideos["HasNewContent"] = vList["has_more"];
+                for (const i of vList.items) {
+                  const AuthorData = i.author;
+                  const Avatar = AuthorData.face;
+                  const Username = AuthorData.name;
+                  const Userspace = AuthorData.jump_url;
+                  const Usermid = AuthorData.mid;
+                  const VideoTitle = i.title;
+                  const VideoLink = i.jump_url;
+                  const VideoCover = i.cover;
+                  if (!NewVideos["Contents"][Usermid.toString()])
+                    NewVideos["Contents"][Usermid.toString()] = {
+                      Avatar: Avatar,
+                      Username: Username,
+                      Userspace: Userspace,
+                      Usermid: Usermid,
+                      Videos: [],
+                    };
+                  NewVideos["Contents"][Usermid.toString()]["Videos"].push({
+                    VideoTitle: VideoTitle,
+                    VideoLink: VideoLink,
+                    VideoCover: VideoCover,
+                  });
+                }
+                BuildFollowingSquare(NewVideos["Contents"]);
+                localStorage.setItem("ContentCacheTimestamp", Date.now());
+                localStorage.setItem(
+                  "ContentCache",
+                  JSON.stringify(NewVideos["Contents"])
+                );
+                for (const i in JumpMapping) {
+                  const Target = document.getElementById(i);
+                  if (Target) {
+                    Target.onclick = () => {
+                      if (location.href !== JumpMapping[i]) {
+                        location.href = JumpMapping[i];
+                      } else {
+                        location.reload();
+                      }
+                    };
+                  }
                 }
               }
+            });
+        } else {
+          NewVideos["HasNewContent"] = false;
+          NewVideos["Contents"] = JSON.parse(
+            localStorage.getItem("ContentCache")
+          );
+          BuildFollowingSquare(NewVideos["Contents"]);
+          for (const i in JumpMapping) {
+            const Target = document.getElementById(i);
+            if (Target) {
+              Target.onclick = () => {
+                if (location.href !== JumpMapping[i]) {
+                  location.href = JumpMapping[i];
+                } else {
+                  location.reload();
+                }
+              };
             }
-          });
-      } else {
-        NewVideos["HasNewContent"] = false;
-        NewVideos["Contents"] = JSON.parse(
-          localStorage.getItem("ContentCache")
-        );
-        BuildFollowingSquare(NewVideos["Contents"]);
-        for (const i in JumpMapping) {
-          const Target = document.getElementById(i);
-          if (Target) {
-            Target.onclick = () => {
-              if (location.href !== JumpMapping[i]) {
-                location.href = JumpMapping[i];
-              } else {
-                location.reload();
-              }
-            };
           }
         }
-      }
-      if (
-        localStorage.getItem("UserInfoCacheTimestamp") === null ||
-        Date.now() - parseInt(localStorage.getItem("UserInfoCacheTimestamp")) >
-          60 * 1000
-      ) {
-        fetch("https://api.bilibili.com/x/web-interface/nav", {
-          method: "GET",
-          credentials: "include",
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            if (data.code === 0) {
-              localStorage.setItem("UserInfoCache", JSON.stringify(data.data));
-              localStorage.setItem("UserInfoCacheTimestamp", Date.now());
-              BuildPopupProfile(data.data);
-            }
-          });
-      } else {
-        BuildPopupProfile(JSON.parse(localStorage.getItem("UserInfoCache")));
-      }
+        if (
+          localStorage.getItem("UserInfoCacheTimestamp") === null ||
+          Date.now() -
+            parseInt(localStorage.getItem("UserInfoCacheTimestamp")) >
+            60 * 1000
+        ) {
+          fetch("https://api.bilibili.com/x/web-interface/nav", {
+            method: "GET",
+            credentials: "include",
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              if (data.code === 0) {
+                localStorage.setItem(
+                  "UserInfoCache",
+                  JSON.stringify(data.data)
+                );
+                localStorage.setItem("UserInfoCacheTimestamp", Date.now());
+                BuildPopupProfile(data.data);
+                document.getElementById("COLLECT").onclick = () => {
+                  location.href = `https://space.bilibili.com/${data.data.mid}/favlist`;
+                };
+              }
+            });
+        } else {
+          const data = JSON.parse(localStorage.getItem("UserInfoCache"));
+          BuildPopupProfile(data);
 
-      document.body.addEventListener("click", (e) => {
-        console.log(e);
-        if (
-          PopupController.isPopingup &&
-          e.target !== PopupController.currentPopingup &&
-          ![...PopupController.triggerEle.children].includes(e.target) &&
-          e.target !== PopupController.triggerEle
-        ) {
-          PopupController.currentPopingup.classList.remove("Active");
-          PopupController.currentPopingup.classList.add("Deactive");
-          PopupController.isPopingup = false;
-          PopupController.triggerEle = null;
-          PopupController.currentPopingup = null;
+          document.getElementById("COLLECT").onclick = () => {
+            location.href = `https://space.bilibili.com/${data.mid}/favlist`;
+          };
         }
-      });
-      document.getElementById("Userspace").onclick = () => {
-        const target = document.getElementById("ProfilePopup");
-        if (
-          PopupController.isPopingup &&
-          PopupController.currentPopingup !== target
-        ) {
-          PopupController.currentPopingup.classList.remove("Active");
-          PopupController.currentPopingup.classList.add("Deactive");
-        }
-        if (target.classList.contains("Deactive")) {
-          PopupController.isPopingup = true;
-          PopupController.currentPopingup = target;
-          PopupController.triggerEle = document.getElementById("Userspace");
-          target.classList.remove("Deactive");
-          target.classList.add("Active");
-        } else {
-          PopupController.isPopingup = false;
-          PopupController.currentPopingup = null;
-          PopupController.triggerEle = null;
-          target.classList.remove("Active");
-          target.classList.add("Deactive");
-        }
-      };
-      document.getElementById("Following").onclick = () => {
-        const target = document.getElementById("FollowingPopup");
-        if (
-          PopupController.isPopingup &&
-          PopupController.currentPopingup !== target
-        ) {
-          PopupController.currentPopingup.classList.remove("Active");
-          PopupController.currentPopingup.classList.add("Deactive");
-        }
-        if (target.classList.contains("Deactive")) {
-          PopupController.isPopingup = true;
-          PopupController.currentPopingup = target;
-          PopupController.triggerEle = document.getElementById("Following");
-          target.classList.remove("Deactive");
-          target.classList.add("Active");
-        } else {
-          PopupController.isPopingup = false;
-          PopupController.currentPopingup = null;
-          PopupController.triggerEle = null;
-          target.classList.remove("Active");
-          target.classList.add("Deactive");
-        }
-      };
-      document.getElementById("MenuSwitch").onclick = () => {
-        if (NewGuideBar.classList.contains("Shrink")) {
-          NewGuideBar.classList.remove("Shrink");
-          localStorage.setItem("BarState","Show");
-        } else {
-          NewGuideBar.classList.add("Shrink");
-          localStorage.setItem("BarState","Hide");
-        }
-      };
-    }
-  }, 200);
-});
+
+        document.body.addEventListener("click", (e) => {
+          // console.log(e);
+          if (e.target.getAttribute("Belong") !== "PopUp"&&
+            PopupController.isPopingup &&
+            e.target !== PopupController.currentPopingup &&
+            ![...PopupController.triggerEle.children].includes(e.target) &&
+            e.target !== PopupController.triggerEle
+          ) {
+            PopupController.currentPopingup.classList.remove("Active");
+            PopupController.currentPopingup.classList.add("Deactive");
+            PopupController.isPopingup = false;
+            PopupController.triggerEle = null;
+            PopupController.currentPopingup = null;
+          }
+        });
+        document.getElementById("Userspace").onclick = () => {
+          const target = document.getElementById("ProfilePopup");
+          if (
+            PopupController.isPopingup &&
+            PopupController.currentPopingup !== target
+          ) {
+            PopupController.currentPopingup.classList.remove("Active");
+            PopupController.currentPopingup.classList.add("Deactive");
+          }
+          if (target.classList.contains("Deactive")) {
+            PopupController.isPopingup = true;
+            PopupController.currentPopingup = target;
+            PopupController.triggerEle = document.getElementById("Userspace");
+            target.classList.remove("Deactive");
+            target.classList.add("Active");
+          } else {
+            PopupController.isPopingup = false;
+            PopupController.currentPopingup = null;
+            PopupController.triggerEle = null;
+            target.classList.remove("Active");
+            target.classList.add("Deactive");
+          }
+        };
+        document.getElementById("Following").onclick = () => {
+          const target = document.getElementById("FollowingPopup");
+          if (
+            PopupController.isPopingup &&
+            PopupController.currentPopingup !== target
+          ) {
+            PopupController.currentPopingup.classList.remove("Active");
+            PopupController.currentPopingup.classList.add("Deactive");
+          }
+          if (target.classList.contains("Deactive")) {
+            PopupController.isPopingup = true;
+            PopupController.currentPopingup = target;
+            PopupController.triggerEle = document.getElementById("Following");
+            target.classList.remove("Deactive");
+            target.classList.add("Active");
+          } else {
+            PopupController.isPopingup = false;
+            PopupController.currentPopingup = null;
+            PopupController.triggerEle = null;
+            target.classList.remove("Active");
+            target.classList.add("Deactive");
+          }
+        };
+        document.getElementById("MenuSwitch").onclick = () => {
+          if (NewGuideBar.classList.contains("Shrink")) {
+            NewGuideBar.classList.remove("Shrink");
+            localStorage.setItem("BarState", "Show");
+          } else {
+            NewGuideBar.classList.add("Shrink");
+            localStorage.setItem("BarState", "Hide");
+          }
+        };
+      }
+    }, 200);
+  });
+}
