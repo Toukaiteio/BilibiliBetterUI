@@ -1465,7 +1465,7 @@ NewGuideBar.innerHTML = `
              <div class="NewGuideBar-Settings-Square">
               <div class="NewGuideBar-Settings-Popup-Title">视频过滤设置</div>
               <div class="NewGuideBar-Settings-Popup-Content">
-                <label>添加屏蔽关键词(支持正则匹配)：<input type="text"></label>
+                <label>添加屏蔽关键词(支持正则匹配)：<input type="text" disabled placeholder="开发中、暂不支持"></label>
                 <div style="width:100%;text-align:center;margin-top:10px;">
                   您当前已应用的规则：
                   <div id="CurrentFilter_Rules"></div>
@@ -1478,7 +1478,7 @@ NewGuideBar.innerHTML = `
               <div class="NewGuideBar-Settings-Square">
               <div class="NewGuideBar-Settings-Popup-Title">评论过滤设置</div>
               <div class="NewGuideBar-Settings-Popup-Content">
-                <label>添加屏蔽关键词(支持正则匹配)：<input type="text"></label>
+                <label>添加屏蔽关键词(支持正则匹配)：<input type="text" disabled placeholder="开发中、暂不支持"></label>
                 <div style="width:100%;text-align:center;margin-top:10px;">
                   您当前已应用的规则：
                   <div id="CurrentFilter_Rules"></div>
