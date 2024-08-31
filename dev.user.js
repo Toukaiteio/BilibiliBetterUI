@@ -383,11 +383,19 @@ NewStyleSheet.innerHTML = `
     .be-pager-item-active,.be-pager-item:hover{
       border-color:var(--MikuColor) !important;
     }
-    .reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like .like-icon[data-v-7041f671]:hover, .reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like .like-icon.liked[data-v-7041f671],.right-side-bar .catalog:hover .catalog-text[data-v-0974dd01], .right-side-bar .catalog:hover .icon-catalog[data-v-0974dd01],.wrapper .n-inner .n-text:hover,.n .n-btn.active,.fav-content a:hover{
+    .be-tab-item.is-active,.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like .like-icon[data-v-7041f671]:hover, .reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like .like-icon.liked[data-v-7041f671],.right-side-bar .catalog:hover .catalog-text[data-v-0974dd01], .right-side-bar .catalog:hover .icon-catalog[data-v-0974dd01],.wrapper .n-inner .n-text:hover,.n .n-btn.active,.fav-content a:hover{
       color:var(--MikuColor) !important;
     }
     h3.bili-video-card__info--tit{
       cursor:pointer;
+    }
+    #page-index .video .content{
+      display:flex;
+      justify-content:center;
+    }
+    #page-index .video .content .small-item{
+      padding:0px !important;
+      margin:10px !important;
     }
     div.NewGuideBar{
         z-index:10001;
