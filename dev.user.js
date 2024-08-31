@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BetterUI
 // @namespace    http://tampermonkey.net/
-// @version      0.2.0.1.2
+// @version      0.2.0.1.3
 // @description  优化b站
 // @author       Daiyosei
 // @copyright    2024, Daiyosei (https://github.com/Toukaiteio)
@@ -2681,8 +2681,8 @@ const ActionMap = {
             <div class="NewGuideBar-Item-Content">视频详情</div>
       `;
       newCard.addEventListener("click", () => {
-        if (!location.href.includes(`BV=${_Storage["VideoBV"].getLink()}`)) {
-          location.href = `https://www.bilibili.com/#v?BV=${_Storage[
+        if (!location.href.includes(`${_Storage["VideoBV"].BV}`)) {
+          location.href = `https://www.bilibili.com/${_Storage[
             "VideoBV"
           ].getLink()}`;
         }
