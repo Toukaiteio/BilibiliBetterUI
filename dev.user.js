@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BetterUI
 // @namespace    http://tampermonkey.net/
-// @version      0.2.0.1.3
+// @version      0.2.0.2.0
 // @description  优化b站
 // @author       Daiyosei
 // @copyright    2024, Daiyosei (https://github.com/Toukaiteio)
@@ -301,16 +301,16 @@ function SwitchTo(WrapperItem) {
       WrapperLoadder.style.opacity = WrappersController[WrapperItem].Loaded
         ? "0"
         : "1";
+      const CurrentIFrame = IFrame;
       setTimeout(() => {
         if (
-          IFrame.style.opacity === "0" &&
-          Wrapper.style.background === "#fff"
+          IFrame.style.opacity === "0" && CurrentIFrame === IFrame
         ) {
           WrapperLoadder.style.opacity = "0";
           IFrame.style.opacity = "1";
         }
         WrappersController[WrapperItem].Loaded = true;
-      }, 5000);
+      }, 3000);
       Wrapper.style.top = "100%";
       Wrapper.style.background = "#fff";
       Wrapper.style.transform = "translateY(-100%)";
@@ -392,6 +392,7 @@ NewStyleSheet.innerHTML = `
     #page-index .video .content{
       display:flex;
       justify-content:center;
+      flex-wrap:wrap;
     }
     #page-index .video .content .small-item{
       padding:0px !important;
@@ -694,12 +695,6 @@ NewStyleSheet.innerHTML = `
     #page-setting .setting-privacy{
       justify-content:space-between;
     }
-    #page-fav .fav-main .small-item:nth-child(5n){
-      margin-right:unset !important;
-    }
-    #page-fav .fav-main .small-item:nth-child(6n){
-      margin-right:unset !important;
-    }
     #page-fav .fav-main .fav-video-list{
       margin: 0px !important;
       display:flex !important;
@@ -961,7 +956,7 @@ const NewStyleSheet_NotFullFunction = `
     }
     div.Popup.Active{
       opacity:1 !important;
-      pointer-event:unset !important;
+      pointer-events:unset !important;
       height:fit-content !important;
     }
     div.NewHeadBar-Following-Popup{
@@ -1152,8 +1147,14 @@ const NewStyleSheet_NotFullFunction = `
       text-align:right;
     }
     .NewGuideBar-Settings-Popup{
-      transform:translateX(100%);
+      transform:translateX(228px);
+      border-top-right-radius:8px;
+      border-bottom-right-radius:8px;
     }
+    .Shrink .NewGuideBar-Settings-Popup{
+      transform:translateX(40px);
+    }
+    
     #Scroller{
      position:absolute;
      top:0px;
@@ -1486,6 +1487,48 @@ MainWrapper.appendChild(SubWrapper);
 NewGuideBar.classList.add("NewGuideBar");
 if (Current === "player" || localStorage.getItem("BarState") === "Hide")
   NewGuideBar.classList.add("Shrink");
+window.FilterSetting = {
+  VideoFilter_PlayNumber: {
+    IsEnable: false,
+    Limitation: 5000,
+  },
+  VideoFilter_BlockByKeywords:{
+    IsEnable: false,
+    Keywords: []
+  },
+  VideoFilter_BlockByUserMids:{
+    IsEnable: false,
+    UserMids: []
+  }
+}
+const playNumberParser = (playNumber) => {
+  if (playNumber.includes("万")) {
+    const playNumberWithoutCharacter = playNumber.replace(/[万]/g, "");
+    return parseFloat(playNumberWithoutCharacter) * 10000;
+  } else {
+    return parseInt(playNumber);
+  }
+}
+onFilterHandler = {
+  VideoFilter_PlayNumber: function(item){
+    // 3中情形: 1、首页 元素第一个 span.bili-video-card__stats--text
+    // 2、播放页视频推荐列表 div.playinfo 第一和第二个空格之间
+    // 3、用户频道页 span.play的textContent
+    // 特殊情形:数字中包含汉字"万"，先提前处理万字
+    const playNumber = item.querySelector(".bili-video-card__stats--text")?.textContent || item.querySelector("div.playinfo")?.textContent.split(" ")[1] || item.querySelector("span.play")?.textContent || "0";
+    
+    const playNumberInt = playNumberParser(playNumber);
+    item.setAttribute("data-filter-checked","true");
+    if(playNumberInt <= FilterSetting.VideoFilter_PlayNumber.Limitation){
+      item.style.display = "none";
+    }
+  },
+  
+}
+if(!localStorage.getItem("FilterSetting"))
+  localStorage.setItem("FilterSetting", JSON.stringify(window.FilterSetting))
+else
+window.FilterSetting = JSON.parse(localStorage.getItem("FilterSetting"))
 NewGuideBar.id = "NewGuideBar";
 NewGuideBar.innerHTML = `
     <div class="NewGuideBar-Square">
@@ -1559,22 +1602,49 @@ NewGuideBar.innerHTML = `
             <div class="SelectingICON ICON">
                 ${SettingICON_Active}
             </div>
-            <div class="NewGuideBar-Item-Content" id="Filter" label='filter'>过滤设置</div>
-            <div class="NewGuideBar-Settings-Popup Popup Deactive" id="SettingsPopup">
+            <div class="NewGuideBar-Item-Content" id="Filter" label='filter' onclick='(() => {
+            const filterSetting = document.getElementById("SettingsPopup");
+          const settingCard = document.getElementById("Filter")
+            if (filterSetting.classList.contains("Deactive")) {
+              filterSetting.classList.remove("Deactive");
+              filterSetting.classList.add("Active");
+              if (!settingCard.classList.contains("Selecting"))
+                settingCard.classList.add("Selecting");
+            } else {
+              filterSetting.classList.remove("Active");
+              filterSetting.classList.add("Deactive");
+              settingCard.classList.remove("Selecting");
+            }
+})()'>过滤设置</div>
+            <div class="NewGuideBar-Settings-Popup Popup Deactive" id="SettingsPopup" style="width:350px;">
              <div class="NewGuideBar-Settings-Square">
-              <div class="NewGuideBar-Settings-Popup-Title">视频过滤设置</div>
+              <div class="NewGuideBar-Settings-Popup-Title">视频过滤设置(新设置仅会对新内容生效)</div>
               <div class="NewGuideBar-Settings-Popup-Content">
-                <label>添加屏蔽关键词(支持正则匹配)：<input type="text" disabled placeholder="开发中、暂不支持"></label>
-                <div style="width:100%;text-align:center;margin-top:10px;">
-                  您当前已应用的规则：
-                  <div id="CurrentFilter_Rules"></div>
-                </div>
-                <div style="width:100%;text-align:center;margin-top:10px;">
-                  当前被您屏蔽的Up主：
-                  <div id="CurrentFilter_UpMids"></div>
-                </div>
+                <checkbox-group id="VideoFilter">
+                  <label>
+                    <input type="checkbox" name="VideoFilter_PlayNumber" value="all" onclick="(() => {
+                       FilterSetting.VideoFilter_PlayNumber.IsEnable = this.checked;
+                       const VideoFilter_PlayerNumber_Limitation = document.getElementById('VideoFilter_PlayerNumber_Limitation');
+                       VideoFilter_PlayerNumber_Limitation.disabled = !this.checked;
+                       FilterSetting.VideoFilter_PlayNumber.Limitation = VideoFilter_PlayerNumber_Limitation.value;
+                       localStorage.setItem('FilterSetting', JSON.stringify(FilterSetting));
+                    })()" ${window.FilterSetting.VideoFilter_PlayNumber.IsEnable ? "checked" : ""}>
+                    隐藏播放量低于以下值的视频
+                    <input type="number" id="VideoFilter_PlayerNumber_Limitation" name="VideoFilter_PlayerNumber_Limitation" value="${window.FilterSetting.VideoFilter_PlayNumber.Limitation}" ${window.FilterSetting.VideoFilter_PlayNumber.IsEnable ? "" : "disabled"} onchange="(
+                      ()=>{
+                        const VideoFilter_PlayerNumber = document.getElementById('VideoFilter_PlayerNumber');
+                        FilterSetting.VideoFilter_PlayNumber.Limitation = this.value;
+                        if(!VideoFilter_PlayerNumber.checked) VideoFilter_PlayerNumber.click();
+                        else {
+                          FilterSetting.VideoFilter_PlayNumber.Limitation = this.value;
+                          localStorage.setItem('FilterSetting', JSON.stringify(FilterSetting));
+                        }
+                      }
+                    )()">
+                  </label>
+                  </checkbox-group>
               </div>
-              <div class="NewGuideBar-Settings-Square">
+              <div class="NewGuideBar-Settings-Square" style="display:none">
               <div class="NewGuideBar-Settings-Popup-Title">评论过滤设置</div>
               <div class="NewGuideBar-Settings-Popup-Content">
                 <label>添加屏蔽关键词(支持正则匹配)：<input type="text" disabled placeholder="开发中、暂不支持"></label>
@@ -2113,30 +2183,14 @@ if (Current !== "unknown") {
             localStorage.setItem("BarState", "Hide");
           }
         });
-        DoUntilDone(() => {
-          const filterSetting = document.getElementById("SettingsPopup");
-          const settingCard = document.getElementById("Filter");
-          if (!filterSetting || !settingCard) return false;
-          settingCard.addEventListener("click", () => {
-            if (filterSetting.classList.contains("Deactive")) {
-              filterSetting.classList.remove("Deactive");
-              filterSetting.classList.add("Active");
-              if (!settingCard.classList.contains("Selecting"))
-                settingCard.classList.add("Selecting");
-            } else {
-              filterSetting.classList.remove("Active");
-              filterSetting.classList.add("Deactive");
-              settingCard.classList.remove("Selecting");
-            }
-          });
-          return true;
-        });
+
       }
 
       const AllaDom = document.querySelectorAll("a");
       for (const i of AllaDom) {
         LinkHandler(i);
       }
+      let Locker = false;
       // 若Current为 home 则利用 MutationObserver API 来监听
       if (isFullFunctionMode) {
         const observer = new MutationObserver((mutationsList, observer) => {
@@ -2148,6 +2202,21 @@ if (Current !== "unknown") {
                   for (const i of AllaDom) {
                     LinkHandler(i);
                   }
+                  if(!Locker){
+                    Locker = true;
+                    const AllVideoCards = document.querySelectorAll("div.video-page-card-small:not([data-filter-checked='true']),div.bili-video-card.is-rcmd.enable-no-interest:not([data-filter-checked='true']),div.feed-card:not([data-filter-checked='true'])")
+                    // console.log("Video Cards:",AllVideoCards);
+                    for(const i in FilterSetting){
+                      if(i.startsWith("VideoFilter_") && onFilterHandler[i]){
+                        const Filter = onFilterHandler[i];
+                        for(const j of AllVideoCards){
+                          Filter(j);
+                        }
+                      }
+                    }
+                    Locker = false;
+                  }
+
                 }
               });
             }
@@ -2547,6 +2616,7 @@ if (Current !== "unknown") {
                     type: "updateVideo",
                     current: {
                       videoCurrentTime: playerElement.currentTime,
+                      videoPaused:playerElement.paused
                     },
                   },
                   "*"
@@ -2729,7 +2799,7 @@ const ActionMap = {
       Wrapper.style.transform = "translateY(-100%)";
       if (
         (!IFrame || !IFrame.src.includes(`BV${BV}`)) &&
-        params.AutoLoaded !== "true" &&
+        !_Storage["VideoBV"].AutoLoaded &&
         !FirstVideoFlag
       ) {
         IFrame.src = `https://www.bilibili.com/video/BV${BV}${
