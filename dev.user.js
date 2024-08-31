@@ -333,8 +333,12 @@ NewStyleSheet.innerHTML = `
     *::-webkit-scrollbar {
         display: none;
     }
-    
-    div.paybar_container__WApBR,div#bili-header-container,div#biliMainHeader,div.bili-header.large-header,div.video-page-game-card-small,div.bili-header__bar,div.fixed-channel-shim,div.header-channel,div.bili-header__channel,div.bili-header__banner,a.ad-report.video-card-ad-small,div#slide_ad,div.floor-single-card,div.bili-live-card,:where(div.bili-video-card.is-rcmd):not(.enable-no-interest),div.recommended-swipe.grid-anchor{
+    div.bili-header.large-header{
+      opacity:0;
+      pointer-events:none;
+      cursor:default;
+    }
+    div.paybar_container__WApBR,div#bili-header-container,div#biliMainHeader,div.video-page-game-card-small,div.bili-header__bar,div.fixed-channel-shim,div.header-channel,div.bili-header__channel,div.bili-header__banner,a.ad-report.video-card-ad-small,div#slide_ad,div.floor-single-card,div.bili-live-card,:where(div.bili-video-card.is-rcmd):not(.enable-no-interest),div.recommended-swipe.grid-anchor{
         display:none !important;
     }
     main.bili-feed4-layout{
