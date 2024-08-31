@@ -1532,7 +1532,7 @@ NewGuideBar.innerHTML = `
         </div>
         <div class="NewGuideBar-Item${
           Current === "profile-collect" ? " Selecting" : ""
-        }"  id="COLLECT" label="profile-collect">
+        }"  id="COLLECT" label="profile-collect" onclick="(()=>{location.href='https://www.bilibili.com/#fav';})()">
           <div class="UnselectingICON ICON">
                 ${PlayListICON}
             </div>
