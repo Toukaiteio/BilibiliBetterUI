@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BetterUI
 // @namespace    http://tampermonkey.net/
-// @version      0.2.0.0.1
+// @version      0.2.0.1.0
 // @description  优化b站
 // @author       Daiyosei
 // @copyright    2024, Daiyosei (https://github.com/Toukaiteio)
@@ -42,6 +42,8 @@ const Search2ICON = `<?xml version="1.0" encoding="UTF-8"?><svg width="24" heigh
 const Search2ICON_Active = `<?xml version="1.0" encoding="UTF-8"?><svg width="24" height="24" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 38C30.3888 38 38 30.3888 38 21C38 11.6112 30.3888 4 21 4C11.6112 4 4 11.6112 4 21C4 30.3888 11.6112 38 21 38Z" fill="var(--MikuColor)" stroke-width="4" stroke-linejoin="round"/><path d="M26.657 14.3431C25.2093 12.8954 23.2093 12 21.0001 12C18.791 12 16.791 12.8954 15.3433 14.3431" stroke="#FFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M33.2216 33.2217L41.7069 41.707" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 const ChannelICON = `<?xml version="1.0" encoding="UTF-8"?><svg width="24" height="24" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 6H8C6.89543 6 6 6.89543 6 8V18C6 19.1046 6.89543 20 8 20H18C19.1046 20 20 19.1046 20 18V8C20 6.89543 19.1046 6 18 6Z" fill="none" stroke="var(--MikuColor)" stroke-width="4" stroke-linejoin="round"/><path d="M18 28H8C6.89543 28 6 28.8954 6 30V40C6 41.1046 6.89543 42 8 42H18C19.1046 42 20 41.1046 20 40V30C20 28.8954 19.1046 28 18 28Z" fill="none" stroke="var(--MikuColor)" stroke-width="4" stroke-linejoin="round"/><path d="M40 6H30C28.8954 6 28 6.89543 28 8V18C28 19.1046 28.8954 20 30 20H40C41.1046 20 42 19.1046 42 18V8C42 6.89543 41.1046 6 40 6Z" fill="none" stroke="var(--MikuColor)" stroke-width="4" stroke-linejoin="round"/><path d="M40 28H30C28.8954 28 28 28.8954 28 30V40C28 41.1046 28.8954 42 30 42H40C41.1046 42 42 41.1046 42 40V30C42 28.8954 41.1046 28 40 28Z" fill="none" stroke="var(--MikuColor)" stroke-width="4" stroke-linejoin="round"/></svg>`;
 const ChannelICON_Active = `<?xml version="1.0" encoding="UTF-8"?><svg width="24" height="24" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 6H8C6.89543 6 6 6.89543 6 8V18C6 19.1046 6.89543 20 8 20H18C19.1046 20 20 19.1046 20 18V8C20 6.89543 19.1046 6 18 6Z" fill="var(--MikuColor)" stroke="var(--MikuColor)" stroke-width="4" stroke-linejoin="round"/><path d="M18 28H8C6.89543 28 6 28.8954 6 30V40C6 41.1046 6.89543 42 8 42H18C19.1046 42 20 41.1046 20 40V30C20 28.8954 19.1046 28 18 28Z" fill="var(--MikuColor)" stroke="var(--MikuColor)" stroke-width="4" stroke-linejoin="round"/><path d="M40 6H30C28.8954 6 28 6.89543 28 8V18C28 19.1046 28.8954 20 30 20H40C41.1046 20 42 19.1046 42 18V8C42 6.89543 41.1046 6 40 6Z" fill="var(--MikuColor)" stroke="var(--MikuColor)" stroke-width="4" stroke-linejoin="round"/><path d="M40 28H30C28.8954 28 28 28.8954 28 30V40C28 41.1046 28.8954 42 30 42H40C41.1046 42 42 41.1046 42 40V30C42 28.8954 41.1046 28 40 28Z" fill="var(--MikuColor)" stroke="var(--MikuColor)" stroke-width="4" stroke-linejoin="round"/></svg>`;
+const BookICON = `<?xml version="1.0" encoding="UTF-8"?><svg width="24" height="24" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 40C8 36 8 10 8 10C8 6.68629 10.8654 4 14.4 4H40V36C40 36 19.9815 36 14.4 36C9.36225 36 8 36.6842 8 40Z" fill="none" stroke="var(--MikuColor)" stroke-width="4" stroke-linejoin="round"/><path fill-rule="evenodd" clip-rule="evenodd" d="M12 44H40V36H12C9.79086 36 8 37.7909 8 40C8 42.2091 9.79086 44 12 44Z" stroke="var(--MikuColor)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const BookICON_Active = `<?xml version="1.0" encoding="UTF-8"?><svg width="24" height="24" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 40C8 36 8 10 8 10C8 6.68629 10.8654 4 14.4 4H40V36C40 36 19.9815 36 14.4 36C9.36225 36 8 36.6842 8 40Z" fill="var(--MikuColor)" stroke="var(--MikuColor)" stroke-width="4" stroke-linejoin="round"/><path fill-rule="evenodd" clip-rule="evenodd" d="M12 44H40V36H12C9.79086 36 8 37.7909 8 40C8 42.2091 9.79086 44 12 44Z" stroke="var(--MikuColor)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 let OpID = location.pathname,
   PageID = location.pathname;
 let isFullFunctionMode = true;
@@ -62,7 +64,7 @@ const DoUntilDone = (callBack, times = -1) => {
       DoUntilDone(callBack, times);
     }, 100);
   }
-}
+};
 const CreateWrapper = (WrapperName, LinkTo, CardQuery = "") => {
   WrappersController[WrapperName] = {};
   WrappersController[WrapperName].Card =
@@ -140,6 +142,7 @@ const HeaderMapping = {
   search: "div#bili-header-container",
   read: "div#bili-header-container",
   bangumi: "div#biliMainHeader",
+  "player-bangumi": "div#biliMainHeader",
   history: "div#biliMainHeader",
   player: "body",
   unknown: "div.bili-header.large-header",
@@ -155,12 +158,67 @@ const DetectMapping = {
   read: "body",
   player: "body",
   bangumi: "div#app",
+  "player-bangumi": "div#__next",
   unknown: "div#app",
 };
 if (location.hash.includes("&AutoLoaded=true")) {
   location.href = location.href.replace("&AutoLoaded=true", "");
+  location.reload();
 } else if (location.hash.includes("AutoLoaded=true")) {
   location.href = location.href.replace("AutoLoaded=true", "");
+  location.reload();
+}
+function LinkHandler(aDom) {
+  if (aDom.href.includes("www.bilibili.com/video/BV")) {
+    const thisBVid = aDom.href
+      .split("www.bilibili.com/video/BV")[1]
+      .split("?")[0]
+      .split("/")[0];
+    aDom.setAttribute(
+      "data-rhref",
+      `#v?BV=${thisBVid}` + (Current === "player" ? "&AutoLoad=true" : "")
+    );
+    aDom.removeAttribute("href");
+    aDom.removeAttribute("target");
+  } else if (aDom.href.includes("space.bilibili.com")) {
+    const thisUseMID = aDom.href
+      .split("space.bilibili.com/")[1]
+      .split("?")[0]
+      .split("/")[0];
+    aDom.setAttribute("data-rhref", `#profile?mid=${thisUseMID}`);
+    aDom.removeAttribute("href");
+    aDom.removeAttribute("target");
+  } else if (aDom.href.includes("www.bilibili.com/bangumi/play")) {
+    const thisBangumiID = aDom.href
+      .split("www.bilibili.com/bangumi/play/")[1]
+      .split("?")[0]
+      .split("/")[0];
+    aDom.setAttribute("data-rhref", `#v?kid=${thisBangumiID}`);
+    aDom.removeAttribute("href");
+    aDom.removeAttribute("target");
+  } else if (aDom.href.includes("www.bilibili.com/read/cv")){
+    const thisReadID = aDom.href
+      .split("www.bilibili.com/read/cv")[1]
+      .split("?")[0]
+      .split("/")[0];
+    aDom.setAttribute("data-rhref",`#read?cid=${thisReadID}`);
+    aDom.removeAttribute("href");
+    aDom.removeAttribute("target");
+  }else {
+    aDom.removeAttribute("target");
+    return;
+  }
+  aDom.addEventListener("click", function (event) {
+    event.preventDefault(); // 阻止默认行为
+    event.stopPropagation(); // 阻止事件冒泡
+    const href = this.getAttribute("data-rhref");
+    if (Current !== "home") {
+      if (isAllowPostMessage)
+        window.parent.postMessage({ type: "nv", href: href }, "*"); // 发送消息给父页面
+    } else {
+      location.href = location.origin + "/" + href;
+    }
+  });
 }
 // Get Current Page
 function GetCurrent() {
@@ -190,6 +248,11 @@ function GetCurrent() {
     location.pathname.includes("/anime")
   )
     return "bangumi";
+  if (
+    location.origin === "https://www.bilibili.com" &&
+    location.pathname.includes("/bangumi/play")
+  )
+    return "player-bangumi";
   if (
     location.origin === "https://www.bilibili.com" &&
     location.pathname.includes("account/history")
@@ -235,7 +298,9 @@ function SwitchTo(WrapperItem) {
     if (IFrame && Wrapper) {
       IFrame.style.transition = "";
       IFrame.style.opacity = WrappersController[WrapperItem].Loaded ? "1" : "0";
-      WrapperLoadder.style.opacity = WrappersController[WrapperItem].Loaded ?"0" : "1";
+      WrapperLoadder.style.opacity = WrappersController[WrapperItem].Loaded
+        ? "0"
+        : "1";
       setTimeout(() => {
         if (
           IFrame.style.opacity === "0" &&
@@ -269,7 +334,7 @@ NewStyleSheet.innerHTML = `
         display: none;
     }
     
-    div.bili-header__bar,div.fixed-channel-shim,div.header-channel,div.bili-header__channel,div.bili-header__banner,a.ad-report.video-card-ad-small,div#slide_ad,div.floor-single-card,div.bili-live-card,:where(div.bili-video-card.is-rcmd):not(.enable-no-interest),div.recommended-swipe.grid-anchor{
+    div.paybar_container__WApBR,div#bili-header-container,div#biliMainHeader,div.bili-header.large-header,div.video-page-game-card-small,div.bili-header__bar,div.fixed-channel-shim,div.header-channel,div.bili-header__channel,div.bili-header__banner,a.ad-report.video-card-ad-small,div#slide_ad,div.floor-single-card,div.bili-live-card,:where(div.bili-video-card.is-rcmd):not(.enable-no-interest),div.recommended-swipe.grid-anchor{
         display:none !important;
     }
     main.bili-feed4-layout{
@@ -299,10 +364,26 @@ NewStyleSheet.innerHTML = `
         --GuideBarSubTextColor:#606060;
         --MikuColor:#39c5bb;
         --NewContentPoint:#39c5bb;
-        --v_brand_blue:var(--MikuColor) !important;
-    }
+        --v_brand_blue:var(--MikuColor);
+        --brand_blue:var(--MikuColor);
+        --bili-rich-text-link-color-hover:var(--MikuColor);
+        --Lb6:#67c0ba;
+        --Lb7:var(--MikuColor);
+        }
     .bili-header .right-entry__outside .right-entry-icon{
         color:var(--GuideBarTextColor) !important;
+    }
+    .unfollow[data-v-2847c980],.n .n-cursor,.be-pager-item-active,.favInfo-box .favInfo-details .fav-options .fav-play,#page-fav .fav-sidenav .fav-item.cur{
+      background:var(--MikuColor) !important;
+    }
+    .be-pager-item-active,.be-pager-item:hover{
+      border-color:var(--MikuColor) !important;
+    }
+    .reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like .like-icon[data-v-7041f671]:hover, .reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like .like-icon.liked[data-v-7041f671],.right-side-bar .catalog:hover .catalog-text[data-v-0974dd01], .right-side-bar .catalog:hover .icon-catalog[data-v-0974dd01],.wrapper .n-inner .n-text:hover,.n .n-btn.active,.fav-content a:hover{
+      color:var(--MikuColor) !important;
+    }
+    h3.bili-video-card__info--tit{
+      cursor:pointer;
     }
     div.NewGuideBar{
         z-index:10001;
@@ -318,6 +399,8 @@ NewStyleSheet.innerHTML = `
         transition:transform .6s;
         pointer-events:auto;
         transform:translateX(0%);
+        display:flex;
+        flex-direction:column;
     }
     div.NewGuideBar::-webkit-scrollbar{
       display:none;
@@ -575,10 +658,6 @@ NewStyleSheet.innerHTML = `
     div.fixed-wrapper.fixed-wrapper-sticky.fixed-wrapper-shown{
         display:none !important;
     }
-    div.GuideBarPlaceHolder{
-      height:100px;
-      width:100%;
-    }
     div#page-dynamic{
       display:flex !important;
     }
@@ -664,7 +743,6 @@ const NewStyleSheet_FullFunction = `
       color:var(--GuideBarTextColor) !important;
 
     }
-
     span.reply-content{
       color:var(--GuideBarTextColor) !important;
       font-family: "Roboto", "Arial", sans-serif;
@@ -949,7 +1027,7 @@ const NewStyleSheet_NotFullFunction = `
       height:35%;
       font-size:14px;
       padding-bottom:8px;
-      color:var(--brand_blue);
+      color:var(--MikuColor) !important;
     }
     .UserHistory{
       flex:1;
@@ -975,7 +1053,7 @@ const NewStyleSheet_NotFullFunction = `
     }
     .UserHistoryTitle-Refresh{
       text-align:right;
-      color:var(--brand_blue);
+      color:var(--MikuColor);
       user-select:none;
       cursor:pointer;
     }
@@ -1144,6 +1222,14 @@ NewHeadBar.querySelector("form.NewHeadBar-SearchRegion").addEventListener(
   }
 );
 const NewGuideBar = document.createElement("div");
+// create Observer to observe the new card
+const ObjectObserver = new MutationObserver((mutations) => {
+  mutations.addedNodes.forEach((node) => {
+    if (node.getAttribute("data-drag-flag") !== "false") {
+      node.setAttribute("draggable", true);
+    }
+  });
+});
 const NewGuideBar_Holder = document.createElement("div");
 NewGuideBar_Holder.style.cssText = `
 z-index:5;
@@ -1205,7 +1291,7 @@ WrapperContainer.innerHTML = `
       </div>
       <div class="layer a1"><div class="triangle"></div></div>
     </div>
-`
+`;
 const WrapperLoadder = WrapperContainer.querySelector("div#Loader.loader");
 SubWrapper.appendChild(NewGuideBar);
 SubWrapper.appendChild(WrapperContainer);
@@ -1369,6 +1455,7 @@ LoaderStyleSheet.innerHTML = `
         justify-content: center;
         align-items: center;
         transition:opacity .4s;
+        background:rgba(255,255,255,0.5);
       }
       .pacman{
         z-index: 2;
@@ -1381,7 +1468,7 @@ LoaderStyleSheet.innerHTML = `
         position: absolute;
         height: 100%;
         width: 100%;
-      }`
+      }`;
 
 MainWrapper.appendChild(SubWrapper);
 NewGuideBar.classList.add("NewGuideBar");
@@ -1428,7 +1515,7 @@ NewGuideBar.innerHTML = `
     <div class="NewGuideBar-Square">
         <div class="NewGuideBar-Item${
           Current === "dynamic" ? " Selecting" : ""
-        }" id="SELF" label="dynamic">
+        }" id="SELF" label="dynamic" data-drag-flag="false">
             <div class="NewGuideBar-Item-Content BiggerFont">我 ${ArrowICON}</div>
         </div>
         <div class="NewGuideBar-Item${
@@ -1560,15 +1647,26 @@ const HasNew = (UploaderMid, Videos) => {
   if (Videos[0]["VideoLink"].includes(record)) return "";
   else {
     DetectingVideos[UploaderMid] = Videos[0]["VideoLink"].includes("/video/")
-      ? Videos[0]["VideoLink"].split("/video/")[1].replaceAll("/", "")
-      : Videos[0]["VideoLink"].split("/read/")[1].replaceAll("/", "");
+      ? Videos[0]["VideoLink"]
+          .split("/video/")[1]
+          .split("?")[0]
+          .replaceAll("/", "")
+      : Videos[0]["VideoLink"].includes("/read/")
+      ? Videos[0]["VideoLink"]
+          .split("/read/")[1]
+          .split("?")[0]
+          .replaceAll("/", "")
+      : Videos[0]["VideoLink"]
+          .split("/bangumi/play/")[1]
+          .split("?")[0]
+          .replaceAll("/", "");
     return " HasNew";
   }
 };
 const BuildFollowingSquare = (Data) => {
-  let OriString_Start = `<div class="NewGuideBar-Square"> <div class="NewGuideBar-Item DisabledHovering" style="cursor:unset;"> <div class="NewGuideBar-Item-Content BiggerFont">订阅</div> </div>`;
-  let OriString_End = `</div><div class="GuideBarPlaceHolder"></div>`;
-  const SingleTemplate = `<div class="NewGuideBar-Item Uploader#HasNew#" onclick="(()=>{localStorage.setItem('UploaderCheckedCache-#AuthorMid#','#AuthorLatestVideo#');location.href='#AuthorSpace#';})()"> 
+  let OriString_Start = `<div class="NewGuideBar-Square" style="overflow:scroll;"> <div class="NewGuideBar-Item DisabledHovering" style="cursor:unset;" data-drag-flag="false"> <div class="NewGuideBar-Item-Content BiggerFont">订阅</div> </div>`;
+  let OriString_End = `</div>`;
+  const SingleTemplate = `<div class="NewGuideBar-Item Uploader#HasNew#" onclick="(()=>{if(this.classList.contains('HasNew')) this.classList.remove('HasNew');localStorage.setItem('UploaderCheckedCache-#AuthorMid#','#AuthorLatestVideo#');location.href='#AuthorSpace#';})()"> 
     <div class="ICON">
         <img src="#AuthorAvatar#" />
     </div>
@@ -1576,6 +1674,8 @@ const BuildFollowingSquare = (Data) => {
         #AuthorName#
     </div>
   </div>`;
+  const ListWithNewContent = [];
+  const ListWithoutNewContent = [];
   for (const i in Data) {
     let CopiedValue = new String(SingleTemplate);
     CopiedValue = CopiedValue.replace(
@@ -1590,14 +1690,26 @@ const BuildFollowingSquare = (Data) => {
         Data[i].Videos[0]["VideoLink"].includes("/video/")
           ? Data[i].Videos[0]["VideoLink"]
               .split("/video/")[1]
+              .split("?")[0]
+              .replaceAll("/", "")
+          : Data[i].Videos[0]["VideoLink"].includes("/read/")
+          ? Data[i].Videos[0]["VideoLink"]
+              .split("/read/")[1]
+              .split("?")[0]
               .replaceAll("/", "")
           : Data[i].Videos[0]["VideoLink"]
-              .split("/read/")[1]
+              .split("/bangumi/play/")[1]
+              .split("?")[0]
               .replaceAll("/", "")
-      )
-      .replace("#HasNew#", HasNew(Data[i].Usermid, Data[i].Videos));
-    OriString_Start += CopiedValue;
+      );
+    if (HasNew(Data[i].Usermid, Data[i].Videos) === " HasNew") {
+      ListWithNewContent.push(CopiedValue.replace("#HasNew#", " HasNew"));
+    } else {
+      ListWithoutNewContent.push(CopiedValue.replace("#HasNew#", ""));
+    }
   }
+  OriString_Start +=
+    ListWithNewContent.join("") + ListWithoutNewContent.join("");
   localStorage.setItem("DetectingVideos", JSON.stringify(DetectingVideos));
   NewGuideBar.innerHTML +=
     `<div class="NewGuideBar-Splitor"></div>` + OriString_Start + OriString_End;
@@ -1615,7 +1727,7 @@ const RefreshHistoryList = () => {
       .then((data) => {
         if (data.code === 0) {
           const vList = data.data.list;
-          const TemplateString = `<div class="UserHistoryItem" onclick="(()=>{location.href='https://www.bilibili.com/#v?BV=#VideoBvid##VideoProgress#'})()">
+          const TemplateString = `<div class="UserHistoryItem" onclick="(()=>{location.href='https://www.bilibili.com/#v?#VideoBvid##VideoProgress#'})()">
               <div class="HistoryVideoCover">
                 <img src="#VideoCover#">
               </div>
@@ -1634,7 +1746,12 @@ const RefreshHistoryList = () => {
           for (const i of vList) {
             let thisObject = new String(TemplateString);
             thisObject = thisObject
-              .replace("#VideoBvid#", i.history.bvid.slice(2))
+              .replace(
+                "#VideoBvid#",
+                i.history.bvid
+                  ? "BV=" + i.history.bvid.slice(2)
+                  : `kid=${i.kid}`
+              )
               .replace(
                 "#VideoProgress#",
                 `?p=${i.history.page}` +
@@ -1872,37 +1989,48 @@ if (Current !== "unknown") {
                 );
                 localStorage.setItem("UserInfoCacheTimestamp", Date.now());
                 BuildPopupProfile(data.data);
-                CreateWrapper(
-                  "CollectWrapper",
-                  `https://space.bilibili.com/${data.data.mid}/favlist`,
-                  "div#COLLECT[label='profile-collect']"
-                );
-                console.log("CollectWrapper Created!");
+
                 DoUntilDone(() => {
-                  const target = NewGuideBar.querySelector("div#COLLECT");
+                  const target = document.querySelector(
+                    "div#COLLECT[label='profile-collect']"
+                  );
                   console.log("finding Target", target);
-                  if (!target) return false;
+                  if (!target || !target.addEventListener) return false;
                   target.addEventListener("click", () => {
                     location.href = `https://www.bilibili.com/#fav`;
                   });
+                  target.setAttribute("data-inited", "true");
+                  if (target.getAttribute("data-inited") !== "true")
+                    return false;
+                  CreateWrapper(
+                    "CollectWrapper",
+                    `https://space.bilibili.com/${data.data.mid}/favlist`,
+                    "div#COLLECT[label='profile-collect']"
+                  );
+                  console.log("CollectWrapper Created!");
                   return true;
                 });
               } else {
                 const data = JSON.parse(localStorage.getItem("UserInfoCache"));
                 BuildPopupProfile(data);
-                CreateWrapper(
-                  "CollectWrapper",
-                  `https://space.bilibili.com/${data.mid}/favlist`,
-                  "div#COLLECT[label='profile-collect']"
-                );
-                console.log("CollectWrapper Created!");
                 DoUntilDone(() => {
-                  const target = NewGuideBar.querySelector("div#COLLECT");
+                  const target = document.querySelector(
+                    "div#COLLECT[label='profile-collect']"
+                  );
                   console.log("finding Target", target);
-                  if (!target) return false;
+                  if (!target || !target.addEventListener) return false;
                   target.addEventListener("click", () => {
                     location.href = `https://www.bilibili.com/#fav`;
                   });
+                  target.setAttribute("data-inited", "true");
+                  if (target.getAttribute("data-inited") !== "true")
+                    return false;
+                  CreateWrapper(
+                    "CollectWrapper",
+                    `https://space.bilibili.com/${data.data.mid}/favlist`,
+                    "div#COLLECT[label='profile-collect']"
+                  );
+                  console.log("CollectWrapper Created!");
                   return true;
                 });
               }
@@ -2025,31 +2153,7 @@ if (Current !== "unknown") {
 
       const AllaDom = document.querySelectorAll("a");
       for (const i of AllaDom) {
-        if (i.href.includes("www.bilibili.com/video/BV")) {
-          const thisBVid = i.href
-            .split("www.bilibili.com/video/BV")[1]
-            .split("?")[0]
-            .split("/")[0];
-          i.setAttribute(
-            "bvid",
-            `#v?BV=${thisBVid}` + (Current === "player" ? "&AutoLoad=true" : "")
-          );
-          i.removeAttribute("target");
-          i.removeAttribute("href");
-        } else {
-          i.removeAttribute("target");
-        }
-        i.addEventListener("click", function (event) {
-          event.preventDefault(); // 阻止默认行为
-          event.stopPropagation(); // 阻止事件冒泡
-          const href = this.getAttribute("bvid");
-          if (Current !== "home") {
-            if (isAllowPostMessage)
-              window.parent.postMessage({ type: "nv", href: href }, "*"); // 发送消息给父页面
-          } else {
-            location.href = location.origin + "/" + href;
-          }
-        });
+        LinkHandler(i);
       }
       // 若Current为 home 则利用 MutationObserver API 来监听
       if (isFullFunctionMode) {
@@ -2060,35 +2164,7 @@ if (Current !== "unknown") {
                 if (k.querySelectorAll) {
                   const AllaDom = k.querySelectorAll("a");
                   for (const i of AllaDom) {
-                    if (i.href.includes("www.bilibili.com/video/BV")) {
-                      const thisBVid = i.href
-                        .split("www.bilibili.com/video/BV")[1]
-                        .split("?")[0]
-                        .split("/")[0];
-                      i.setAttribute(
-                        "bvid",
-                        `#v?BV=${thisBVid}` +
-                          (Current === "player" ? "&AutoLoad=true" : "")
-                      );
-                      i.removeAttribute("href");
-                      i.removeAttribute("target");
-                    } else {
-                      i.removeAttribute("target");
-                    }
-                    i.addEventListener("click", function (event) {
-                      event.preventDefault(); // 阻止默认行为
-                      event.stopPropagation(); // 阻止事件冒泡
-                      const href = this.getAttribute("bvid");
-                      if (Current !== "home") {
-                        if (isAllowPostMessage)
-                          window.parent.postMessage(
-                            { type: "nv", href: href },
-                            "*"
-                          ); // 发送消息给父页面
-                      } else {
-                        location.href = location.origin + "/" + href;
-                      }
-                    });
+                    LinkHandler(i);
                   }
                 }
               });
@@ -2100,13 +2176,21 @@ if (Current !== "unknown") {
           "profile-collect": "ul.fav-video-list.clearfix.content",
           player: "div.rec-list",
           history: "ul#history_list.history-list",
+          profile: "div.s-space",
+          "player-bangumi": "div.recommend_wrap__PccwM",
+          read:"div.right-side-bar > div.catalog"
         };
         if (ObserveMap[Current]) {
-          observer.observe(document.querySelector(ObserveMap[Current]), {
-            childList: true, // 观察子元素的添加和移除
-            attributes: false, // 不观察属性变动
-            characterData: false, // 不观察文本内容变动
-            subtree: false, // 仅观察直接子元素，不观察更深层次的子元素
+          DoUntilDone(() => {
+            const target = document.querySelector(ObserveMap[Current]);
+            if (!target) return false;
+            observer.observe(target, {
+              childList: true, // 观察子元素的添加和移除
+              attributes: false, // 不观察属性变动
+              characterData: false, // 不观察文本内容变动
+              subtree: true, // 仅观察直接子元素，不观察更深层次的子元素
+            });
+            return true;
           });
         }
       }
@@ -2598,11 +2682,6 @@ const VideoManagement = {
 };
 const ActionMap = {
   v: (params) => {
-    _Storage["VideoBV"] = params.BV;
-    if (params.AutoLoaded === "true" && !FirstVideoFlag) {
-      _Storage["VideoBV"] = `${params.BV}&AutoLoaded=true`;
-    }
-    const BV = params.BV;
     if (FirstVideoFlag) {
       const selecting = document.querySelector("div.NewGuideBar-Item#ANIME");
       const CardStore = selecting.parentElement;
@@ -2620,8 +2699,10 @@ const ActionMap = {
             <div class="NewGuideBar-Item-Content">视频详情</div>
       `;
       newCard.addEventListener("click", () => {
-        if (!location.href.includes(`BV=${_Storage["VideoBV"]}`)) {
-          location.href = `https://www.bilibili.com/#v?BV=${_Storage["VideoBV"]}`;
+        if (!location.href.includes(`BV=${_Storage["VideoBV"].getLink()}`)) {
+          location.href = `https://www.bilibili.com/#v?BV=${_Storage[
+            "VideoBV"
+          ].getLink()}`;
         }
         SwitchTo("VideoDetailWrapper");
       });
@@ -2629,33 +2710,74 @@ const ActionMap = {
       FirstVideoFlag = false;
       WrappersController["VideoDetailWrapper"].Card = newCard;
     }
-    if (
-      (!IFrame || !IFrame.src.includes(`BV${BV}`)) &&
-      params.AutoLoaded !== "true" &&
-      !FirstVideoFlag
-    ) {
-      WrappersController["VideoDetailWrapper"].Loaded = false;
-      VideoManagement.videoHasLoaded = false;
-      VideoManagement.videoDuration = 0;
-      VideoManagement.videoCurrentTime = 0;
-    }
+    if (params.BV) {
+      if (!_Storage["VideoBV"])
+        _Storage["VideoBV"] = { BV: "", From: [], AutoLoaded: false };
+      if (_Storage["VideoBV"].BV !== params.BV)
+        _Storage["VideoBV"] = { BV: params.BV, From: [], AutoLoaded: false };
+      if (params.From && !_Storage["VideoBV"].From.includes(params.From))
+        _Storage["VideoBV"].From.push(params.From);
+      _Storage["VideoBV"].getLink = () => {
+        return `#v?BV=${_Storage["VideoBV"].BV}&AutoLoaded=${
+          _Storage["VideoBV"].AutoLoaded ? "true" : "false"
+        }`;
+      };
+      if (params.AutoLoaded === "true" && !FirstVideoFlag) {
+        _Storage["VideoBV"].AutoLoaded = true;
+      } else {
+        _Storage["VideoBV"].AutoLoaded = false;
+      }
+      const BV = params.BV;
 
-    SwitchTo("VideoDetailWrapper");
+      if (
+        (!IFrame || !IFrame.src.includes(`BV${BV}`)) &&
+        !_Storage["VideoBV"].AutoLoaded &&
+        !FirstVideoFlag
+      ) {
+        WrappersController["VideoDetailWrapper"].Loaded = false;
+        VideoManagement.videoHasLoaded = false;
+        VideoManagement.videoDuration = 0;
+        VideoManagement.videoCurrentTime = 0;
+      }
 
-    if (_Storage["LastVideoTitle"]) document.title = _Storage["LastVideoTitle"];
-    Wrapper.style.transform = "translateY(-100%)";
-    if (
-      (!IFrame || !IFrame.src.includes(`BV${BV}`)) &&
-      params.AutoLoaded !== "true" &&
-      !FirstVideoFlag
-    ) {
-      IFrame.src = `https://www.bilibili.com/video/BV${BV}${
-        params.t ? "?t=" + params.t : ""
-      }#?AllowPostMessage`;
-    } else {
-      IFrame.style.transition = "all 0.6s ease-in-out";
-      IFrame.style.opacity = "1";
-      WrapperLoadder.style.opacity = "0";
+      SwitchTo("VideoDetailWrapper");
+
+      if (_Storage["LastVideoTitle"])
+        document.title = _Storage["LastVideoTitle"];
+      Wrapper.style.transform = "translateY(-100%)";
+      if (
+        (!IFrame || !IFrame.src.includes(`BV${BV}`)) &&
+        params.AutoLoaded !== "true" &&
+        !FirstVideoFlag
+      ) {
+        IFrame.src = `https://www.bilibili.com/video/BV${BV}${
+          params.t ? "?t=" + params.t : ""
+        }#?AllowPostMessage`;
+      } else {
+        IFrame.style.transition = "all 0.6s ease-in-out";
+        IFrame.style.opacity = "1";
+        WrapperLoadder.style.opacity = "0";
+      }
+    } else if (params.kid) {
+      if (
+        !_Storage["VideoBV"] ||
+        !_Storage["VideoBV"].From.includes(params.kid)
+      )
+        WrappersController[
+          "VideoDetailWrapper"
+        ].IFrame.src = `https://www.bilibili.com/bangumi/play/${params.kid}#?AllowPostMessage`;
+      else
+        location.href = `https://www.bilibili.com/${_Storage[
+          "VideoBV"
+        ].getLink()}`;
+
+      // DoUntilDone(()=>{
+      //   const target = WrappersController["VideoDetailWrapper"].IFrame.contentWindow.document.querySelector("a.mediainfo_avLink__iyzyV");
+      //   console.log(target);
+      //   if(!target) return false;
+      //   location.href = location.origin + "/#v?BV=" + `${target.textContent.slice(2)}`;
+      //   return true;
+      // })
     }
   },
   h: (params) => {
@@ -2745,6 +2867,7 @@ const ActionMap = {
     }
   },
   profile: (params) => {
+    if (!params.mid) params.mid = "";
     _Storage["PrifileMid"] = params.mid;
     if (!WrappersController["ProfileWrapper"]) {
       const selecting = document.querySelector("div.NewGuideBar-Item#ANIME");
@@ -2765,7 +2888,7 @@ const ActionMap = {
       `;
       newCard.addEventListener("click", () => {
         if (!location.href.includes(`mid=${_Storage["PrifileMid"]}`)) {
-          `https://www.bilibili.com/#profile?mid=${_Storage["PrifileMid"]}`;
+          location.href = `https://www.bilibili.com/#profile?mid=${_Storage["PrifileMid"]}`;
         }
         SwitchTo("ProfileWrapper");
       });
@@ -2776,6 +2899,44 @@ const ActionMap = {
     SwitchTo("ProfileWrapper");
     if (!IFrame.src.includes("mid=" + params.mid)) {
       IFrame.src = `https://space.bilibili.com/${params.mid}#?AllowPostMessage`;
+    } else {
+      IFrame.style.transition = "all 0.6s ease-in-out";
+      IFrame.style.opacity = "1";
+      WrapperLoadder.style.opacity = "0";
+    }
+  },
+  read:(params)=>{
+    _Storage["ReadCid"] = params.cid;
+    if (!WrappersController["ReadWrapper"]) {
+      const selecting = document.querySelector("div.NewGuideBar-Item#ANIME");
+      const CardStore = selecting.parentElement;
+      // 获取CardStore的第二个元素
+      const InsertPosition = selecting;
+      const newCard = document.createElement("div");
+      CreateWrapper("ReadWrapper", "", newCard);
+      newCard.classList.add("NewGuideBar-Item");
+      newCard.innerHTML = `
+            <div class="UnselectingICON ICON">
+                ${BookICON}
+            </div>
+            <div class="SelectingICON ICON">
+                ${BookICON_Active}
+            </div>
+            <div class="NewGuideBar-Item-Content">专栏详情</div>
+      `;
+      newCard.addEventListener("click", () => {
+        if (!location.href.includes(`cid=${_Storage["ReadCid"]}`)) {
+          location.href = `https://www.bilibili.com/#read?cid=${_Storage["ReadCid"]}`;
+        }
+        SwitchTo("ReadWrapper");
+      });
+      CardStore.insertBefore(newCard, InsertPosition);
+      WrappersController["ReadWrapper"].Card = newCard;
+    }
+
+    SwitchTo("ReadWrapper");
+    if (!IFrame.src.includes("cid=" + params.cid)) {
+      IFrame.src = `https://www.bilibili.com/read/cv${params.cid}#?AllowPostMessage`;
     } else {
       IFrame.style.transition = "all 0.6s ease-in-out";
       IFrame.style.opacity = "1";
@@ -2810,6 +2971,7 @@ window.addEventListener("hashchange", loadHash);
 
 const WrapperMap = {
   bangumi: "AnimeWrapper",
+  "player-bangumi": "VideoDetailWrapper",
   home: "",
   player: "VideoDetailWrapper",
   game: "GameWrapper",
@@ -2818,6 +2980,7 @@ const WrapperMap = {
   "profile-collect": "CollectWrapper",
   search: "SearchWrapper",
   profile: "ProfileWrapper",
+  read:"ReadWrapper"
 };
 if (Current === "home") {
   window.addEventListener("message", function (event) {
@@ -2839,7 +3002,8 @@ if (Current === "home") {
           WrappersController[WrapperMap[data.belong]].IFrame.style.opacity =
             "1";
           WrappersController[WrapperMap[data.belong]].Loaded = true;
-          if(CurrentWrapper === WrapperMap[data.belong]) WrapperLoadder.style.opacity = "0";
+          if (CurrentWrapper === WrapperMap[data.belong])
+            WrapperLoadder.style.opacity = "0";
           if (WrappersController[CurrentWrapper])
             document.title = WrappersController[CurrentWrapper].Title;
         }
@@ -2866,7 +3030,8 @@ if (Current === "home") {
           WrappersController[WrapperMap[data.belong]].IFrame.style.opacity =
             "1";
           WrappersController[WrapperMap[data.belong]].Loaded = true;
-          if(CurrentWrapper === WrapperMap[data.belong]) WrapperLoadder.style.opacity = "0";
+          if (CurrentWrapper === WrapperMap[data.belong])
+            WrapperLoadder.style.opacity = "0";
           if (WrappersController[CurrentWrapper])
             document.title = WrappersController[CurrentWrapper].Title;
         }
@@ -2874,7 +3039,9 @@ if (Current === "home") {
           location.href =
             location.origin + `/#v?BV=${data.bvid}&AutoLoaded=true`;
         } else {
-          _Storage["VideoBV"] = `${data.bvid}&AutoLoaded=true`;
+          if (_Storage["VideoBV"].BV !== data.bvid)
+            _Storage["VideoBV"] = { BV: data.bvid, From: [], AutoLoaded: true };
+          else _Storage["VideoBV"].AutoLoaded = true;
         }
       }
     }
@@ -2882,15 +3049,41 @@ if (Current === "home") {
 }
 function getCurrentBvid() {
   if (Current === "player") {
-    const BV = location.href.split("/video/BV")[1].split("/")[0];
+    const BV = location.href.split("/video/BV")[1].split("?")[0].split("/")[0];
+    return BV;
+  } else if (Current === "player-bangumi") {
+    const BV = document
+      .querySelector("a.mediainfo_avLink__iyzyV")
+      .textContent.slice(2);
     return BV;
   } else {
     return "";
   }
 }
-if (isFullFunctionMode && Current === "player") {
-  if (isAllowPostMessage)
-    window.parent.postMessage({ type: "uv", bvid: getCurrentBvid() }, "*"); // 发送消息给父页面
+if (
+  isFullFunctionMode &&
+  (Current === "player" || Current === "player-bangumi")
+) {
+  if (isAllowPostMessage && Current === "player")
+    window.parent.postMessage({ type: "uv", bvid: getCurrentBvid() }, "*");
+  // 发送消息给父页面
+  else if (isAllowPostMessage && Current === "player-bangumi") {
+    // window.parent.console.log("Handling Bangumi Player Page")
+    DoUntilDone(() => {
+      const target = document.querySelector("a.mediainfo_avLink__iyzyV");
+      if (!target) return false;
+      const BV =
+        target.textContent.slice(2) +
+        "&From=" +
+        location.href
+          .split("bangumi/play/")[1]
+          .split("#")[0]
+          .split("?")[0]
+          .split("/")[0];
+      window.parent.postMessage({ type: "uv", bvid: BV }, "*"); // 发送消息给父页面
+      return true;
+    });
+  }
 }
 
 // if (Current === "player" && isFullFunctionMode){
@@ -2900,7 +3093,6 @@ if (isFullFunctionMode && Current === "player") {
 /**
  * TODO:
  * 1、规范 #fff #ccc，转为使用var()，以方便制作主题色切换功能。
- * 2、阅读页面 番剧观看页面适配
- * 3、阅读页面漫画阅读模式
+ * 2、阅读页面漫画阅读模式
  * 4、实装 过滤设置
  */
