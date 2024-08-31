@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BetterUI
 // @namespace    http://tampermonkey.net/
-// @version      0.2.0.2.0
+// @version      0.2.0.2.1
 // @description  优化b站
 // @author       Daiyosei
 // @copyright    2024, Daiyosei (https://github.com/Toukaiteio)
@@ -338,7 +338,7 @@ NewStyleSheet.innerHTML = `
       pointer-events:none;
       cursor:default;
     }
-    div.paybar_container__WApBR,div#bili-header-container,div#biliMainHeader,div.video-page-game-card-small,div.bili-header__bar,div.fixed-channel-shim,div.header-channel,div.bili-header__channel,div.bili-header__banner,a.ad-report.video-card-ad-small,div#slide_ad,div.floor-single-card,div.bili-live-card,:where(div.bili-video-card.is-rcmd):not(.enable-no-interest),div.recommended-swipe.grid-anchor{
+    div.pop-live-small-mode.part-1,div.paybar_container__WApBR,div#bili-header-container,div#biliMainHeader,div.video-page-game-card-small,div.bili-header__bar,div.fixed-channel-shim,div.header-channel,div.bili-header__channel,div.bili-header__banner,a.ad-report.video-card-ad-small,div#slide_ad,div.floor-single-card,div.bili-live-card,:where(div.bili-video-card.is-rcmd):not(.enable-no-interest),div.recommended-swipe.grid-anchor{
         display:none !important;
     }
     main.bili-feed4-layout{
@@ -1515,13 +1515,18 @@ onFilterHandler = {
     // 2、播放页视频推荐列表 div.playinfo 第一和第二个空格之间
     // 3、用户频道页 span.play的textContent
     // 特殊情形:数字中包含汉字"万"，先提前处理万字
-    const playNumber = item.querySelector(".bili-video-card__stats--text")?.textContent || item.querySelector("div.playinfo")?.textContent.split(" ")[1] || item.querySelector("span.play")?.textContent || "0";
-    
-    const playNumberInt = playNumberParser(playNumber);
-    item.setAttribute("data-filter-checked","true");
-    if(playNumberInt <= FilterSetting.VideoFilter_PlayNumber.Limitation){
-      item.style.display = "none";
-    }
+    DoUntilDone(()=>{
+      const playNumber = item.querySelector(".bili-video-card__stats--text")?.textContent || item.querySelector("div.playinfo")?.textContent.split(" ")[1] || item.querySelector("span.play")?.textContent || "0";
+      if(playNumber === "0") return false;
+      const playNumberInt = playNumberParser(playNumber);
+      console.log(item,playNumber,playNumberInt);
+      item.setAttribute("data-filter-checked","true");
+      if(playNumberInt <= FilterSetting.VideoFilter_PlayNumber.Limitation){
+        item.style.display = "none";
+      }
+      return true;
+    })
+
   },
   
 }
@@ -2207,7 +2212,7 @@ if (Current !== "unknown") {
                     const AllVideoCards = document.querySelectorAll("div.video-page-card-small:not([data-filter-checked='true']),div.bili-video-card.is-rcmd.enable-no-interest:not([data-filter-checked='true']),div.feed-card:not([data-filter-checked='true'])")
                     // console.log("Video Cards:",AllVideoCards);
                     for(const i in FilterSetting){
-                      if(i.startsWith("VideoFilter_") && onFilterHandler[i]){
+                      if(FilterSetting[i].IsEnable && i.startsWith("VideoFilter_") && onFilterHandler[i]){
                         const Filter = onFilterHandler[i];
                         for(const j of AllVideoCards){
                           Filter(j);
