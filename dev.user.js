@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BetterUI
 // @namespace    http://tampermonkey.net/
-// @version      0.2.0.1.0
+// @version      0.2.0.1.2
 // @description  优化b站
 // @author       Daiyosei
 // @copyright    2024, Daiyosei (https://github.com/Toukaiteio)
@@ -196,15 +196,15 @@ function LinkHandler(aDom) {
     aDom.setAttribute("data-rhref", `#v?kid=${thisBangumiID}`);
     aDom.removeAttribute("href");
     aDom.removeAttribute("target");
-  } else if (aDom.href.includes("www.bilibili.com/read/cv")){
+  } else if (aDom.href.includes("www.bilibili.com/read/cv")) {
     const thisReadID = aDom.href
       .split("www.bilibili.com/read/cv")[1]
       .split("?")[0]
       .split("/")[0];
-    aDom.setAttribute("data-rhref",`#read?cid=${thisReadID}`);
+    aDom.setAttribute("data-rhref", `#read?cid=${thisReadID}`);
     aDom.removeAttribute("href");
     aDom.removeAttribute("target");
-  }else {
+  } else {
     aDom.removeAttribute("target");
     return;
   }
@@ -2002,49 +2002,19 @@ if (Current !== "unknown") {
                 localStorage.setItem("UserInfoCacheTimestamp", Date.now());
                 BuildPopupProfile(data.data);
 
-                DoUntilDone(() => {
-                  const target = document.querySelector(
-                    "div#COLLECT[label='profile-collect']"
-                  );
-                  console.log("finding Target", target);
-                  if (!target || !target.addEventListener) return false;
-                  target.addEventListener("click", () => {
-                    location.href = `https://www.bilibili.com/#fav`;
-                  });
-                  target.setAttribute("data-inited", "true");
-                  if (target.getAttribute("data-inited") !== "true")
-                    return false;
-                  CreateWrapper(
-                    "CollectWrapper",
-                    `https://space.bilibili.com/${data.data.mid}/favlist`,
-                    "div#COLLECT[label='profile-collect']"
-                  );
-                  console.log("CollectWrapper Created!");
-                  return true;
-                });
+                CreateWrapper(
+                  "CollectWrapper",
+                  `https://space.bilibili.com/${data.data.mid}/favlist`,
+                  "div#COLLECT[label='profile-collect']"
+                );
               } else {
                 const data = JSON.parse(localStorage.getItem("UserInfoCache"));
                 BuildPopupProfile(data);
-                DoUntilDone(() => {
-                  const target = document.querySelector(
-                    "div#COLLECT[label='profile-collect']"
-                  );
-                  console.log("finding Target", target);
-                  if (!target || !target.addEventListener) return false;
-                  target.addEventListener("click", () => {
-                    location.href = `https://www.bilibili.com/#fav`;
-                  });
-                  target.setAttribute("data-inited", "true");
-                  if (target.getAttribute("data-inited") !== "true")
-                    return false;
-                  CreateWrapper(
-                    "CollectWrapper",
-                    `https://space.bilibili.com/${data.data.mid}/favlist`,
-                    "div#COLLECT[label='profile-collect']"
-                  );
-                  console.log("CollectWrapper Created!");
-                  return true;
-                });
+                CreateWrapper(
+                  "CollectWrapper",
+                  `https://space.bilibili.com/${data.mid}/favlist`,
+                  "div#COLLECT[label='profile-collect']"
+                );
               }
             });
         } else {
@@ -2190,7 +2160,7 @@ if (Current !== "unknown") {
           history: "ul#history_list.history-list",
           profile: "div.s-space",
           "player-bangumi": "div.recommend_wrap__PccwM",
-          read:"div.right-side-bar > div.catalog"
+          read: "div.right-side-bar > div.catalog",
         };
         if (ObserveMap[Current]) {
           DoUntilDone(() => {
@@ -2917,7 +2887,7 @@ const ActionMap = {
       WrapperLoadder.style.opacity = "0";
     }
   },
-  read:(params)=>{
+  read: (params) => {
     _Storage["ReadCid"] = params.cid;
     if (!WrappersController["ReadWrapper"]) {
       const selecting = document.querySelector("div.NewGuideBar-Item#ANIME");
@@ -2992,7 +2962,7 @@ const WrapperMap = {
   "profile-collect": "CollectWrapper",
   search: "SearchWrapper",
   profile: "ProfileWrapper",
-  read:"ReadWrapper"
+  read: "ReadWrapper",
 };
 if (Current === "home") {
   window.addEventListener("message", function (event) {
@@ -3052,7 +3022,12 @@ if (Current === "home") {
             location.origin + `/#v?BV=${data.bvid}&AutoLoaded=true`;
         } else {
           if (_Storage["VideoBV"].BV !== data.bvid)
-            _Storage["VideoBV"] = { BV: data.bvid, From: [], AutoLoaded: true,getLink:_Storage["VideoBV"].getLink };
+            _Storage["VideoBV"] = {
+              BV: data.bvid,
+              From: [],
+              AutoLoaded: true,
+              getLink: _Storage["VideoBV"].getLink,
+            };
           else _Storage["VideoBV"].AutoLoaded = true;
         }
       }
