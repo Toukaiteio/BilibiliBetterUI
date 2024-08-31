@@ -481,6 +481,9 @@ NewStyleSheet.innerHTML = `
       top:18px;
       right:12px;
     }
+    .Shrink div.NewGuideBar-Item.Uploader.HasNew::before{
+      display:none;
+    }
     div.NewGuideBar-Item.Selecting .UnselectingICON{
         display:none !important;
     }
@@ -1519,7 +1522,6 @@ onFilterHandler = {
       const playNumber = item.querySelector(".bili-video-card__stats--text")?.textContent || item.querySelector("div.playinfo")?.textContent.split(" ")[1] || item.querySelector("span.play")?.textContent || "0";
       if(playNumber === "0") return false;
       const playNumberInt = playNumberParser(playNumber);
-      console.log(item,playNumber,playNumberInt);
       item.setAttribute("data-filter-checked","true");
       if(playNumberInt <= FilterSetting.VideoFilter_PlayNumber.Limitation){
         item.style.display = "none";
