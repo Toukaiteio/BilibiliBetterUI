@@ -3052,7 +3052,7 @@ if (Current === "home") {
             location.origin + `/#v?BV=${data.bvid}&AutoLoaded=true`;
         } else {
           if (_Storage["VideoBV"].BV !== data.bvid)
-            _Storage["VideoBV"] = { BV: data.bvid, From: [], AutoLoaded: true };
+            _Storage["VideoBV"] = { BV: data.bvid, From: [], AutoLoaded: true,getLink:_Storage["VideoBV"].getLink };
           else _Storage["VideoBV"].AutoLoaded = true;
         }
       }
