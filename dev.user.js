@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BetterUI
 // @namespace    http://tampermonkey.net/
-// @version      0.2.0.2.1
+// @version      0.2.0.2.2
 // @description  优化b站
 // @author       Daiyosei
 // @copyright    2024, Daiyosei (https://github.com/Toukaiteio)
@@ -78,12 +78,12 @@ const CreateWrapper = (WrapperName, LinkTo, CardQuery = "") => {
     : "";
   WrappersController[
     WrapperName
-  ].Wrapper.style.cssText = `position:absolute;top:100%;left:0px;background:#fff;height:100%;width:100%;transition:all 0.4s ease-in-out;transform:translateY(0%);pointer-events:auto;`;
+  ].Wrapper.style.cssText = `min-width:1550px;will-change:transform, opacity;position:absolute;top:100%;left:0px;background:#fff;height:100%;width:100%;transform:translateY(0%);pointer-events:auto;`;
   const IFrameWrapper = document.createElement("div");
   IFrameWrapper.style.cssText = `position:relative;height:100%;width:100%;`;
   WrappersController[
     WrapperName
-  ].IFrame.style.cssText = `height:100%;width:100%;border:none;transition:all 0.4s ease-in-out;opacity:0;`;
+  ].IFrame.style.cssText = `height:100%;width:100%;border:none;opacity:0;`;
   IFrameWrapper.appendChild(WrappersController[WrapperName].IFrame);
   WrappersController[WrapperName].Wrapper.appendChild(IFrameWrapper); // Wrap in a container;
   WrapperContainer.appendChild(WrappersController[WrapperName].Wrapper);
@@ -220,6 +220,7 @@ function LinkHandler(aDom) {
     }
   });
 }
+const MainPage = document.querySelector("main.bili-feed4-layout div.feed2");
 // Get Current Page
 function GetCurrent() {
   for (const i of CleanTimer) {
@@ -287,33 +288,47 @@ function SwitchTo(WrapperItem) {
       WrappersController[WrapperItem].Card.classList.add("Selecting");
     }
     if (Wrapper && IFrame) {
-      Wrapper.style.top = "100%";
-      Wrapper.style.background = "transparent";
-      IFrame.style.transition = "";
-      IFrame.style.opacity = "0";
-      Wrapper.style.transform = "translateY(0%)";
+      MainPage.style.display = "block";
+      Object.assign(Wrapper.style, {
+        display: "none",
+        pointerEvents: "none",
+        top: "100%",
+        background: "transparent",
+        transform: "translateY(0%)",
+      });
+      Object.assign(IFrame.style, {
+        transition: "",
+        opacity: "0",
+      });
     }
     Wrapper = WrappersController[WrapperItem].Wrapper;
     IFrame = WrappersController[WrapperItem].IFrame;
     if (IFrame && Wrapper) {
-      IFrame.style.transition = "";
-      IFrame.style.opacity = WrappersController[WrapperItem].Loaded ? "1" : "0";
+      Object.assign(IFrame.style, {
+        transition: "",
+        opacity: WrappersController[WrapperItem].Loaded ? "1" : "0",
+      });
       WrapperLoadder.style.opacity = WrappersController[WrapperItem].Loaded
         ? "0"
         : "1";
       const CurrentIFrame = IFrame;
       setTimeout(() => {
-        if (
-          IFrame.style.opacity === "0" && CurrentIFrame === IFrame
-        ) {
+        if (IFrame.style.opacity === "0" && CurrentIFrame === IFrame) {
           WrapperLoadder.style.opacity = "0";
           IFrame.style.opacity = "1";
         }
         WrappersController[WrapperItem].Loaded = true;
       }, 3000);
-      Wrapper.style.top = "100%";
-      Wrapper.style.background = "#fff";
-      Wrapper.style.transform = "translateY(-100%)";
+      Object.assign(Wrapper.style, {
+        display: "block",
+        pointerEvents: "auto",
+        top: "100%",
+        background: "#fff",
+        transform: "translateY(-100%)",
+        transition:
+          "transition: transform 0.4s ease-in-out,opacity 0.5s ease-in-out",
+      });
+      MainPage.style.display = "none";
     }
   }
 }
@@ -328,18 +343,74 @@ const PageDetector = setInterval(() => {
     }, 500);
   }
 }, 1000);
-const NewStyleSheet = document.createElement("style");
-NewStyleSheet.innerHTML = `
-    *::-webkit-scrollbar {
-        display: none;
+let StyleModifyOriPage = `
+    :root{
+        --GuideBarOnSelecting:#F2F2F2;
+        --GuideBarTextColor:#4f584f;
+        --GuideBarOnSelectHoverBG:#E6E6E6;
+        --GuideBarHover:#f2f2f2;
+        --GuideBarSpiltorBG:#E5E5E5;
+        --GuideBarSubTextColor:#606060;
+        --MikuColor:#39c5bb;
+        --NewContentPoint:#39c5bb;
+        --v_brand_blue:var(--MikuColor);
+        --brand_blue:var(--MikuColor);
+        --bili-rich-text-link-color-hover:var(--MikuColor);
+        --Lb6:#67c0ba;
+        --Lb7:var(--MikuColor);
+    }
+    div.nav-tool-container.inner-content-wrapper,div#biliMainHeader,div.pop-live-small-mode.part-1,div.paybar_container__WApBR,div#bili-header-container,div#biliMainHeader,div.video-page-game-card-small,div.bili-header__bar,div.fixed-channel-shim,div.header-channel,div.bili-header__channel,div.bili-header__banner,a.ad-report.video-card-ad-small,div#slide_ad,div.floor-single-card,div.bili-live-card,:where(div.bili-video-card.is-rcmd):not(.enable-no-interest),div.recommended-swipe.grid-anchor,div#activity_vote,div.toolbar-right-ai.disabled,div.reply-decorate,div.bili-avatar-pendent-dom,div.reply-notice,a.pop-live-small-mode.part-1,div.search-input,a#right-bottom-banner,a#bannerAd{
+      display:none !important;
+      poinrter-events:none !important;
     }
     div.bili-header.large-header{
       opacity:0;
       pointer-events:none;
       cursor:default;
     }
-    div.pop-live-small-mode.part-1,div.paybar_container__WApBR,div#bili-header-container,div#biliMainHeader,div.video-page-game-card-small,div.bili-header__bar,div.fixed-channel-shim,div.header-channel,div.bili-header__channel,div.bili-header__banner,a.ad-report.video-card-ad-small,div#slide_ad,div.floor-single-card,div.bili-live-card,:where(div.bili-video-card.is-rcmd):not(.enable-no-interest),div.recommended-swipe.grid-anchor{
-        display:none !important;
+    div.root-reply-avatar{
+      padding-top: 2px !important;
+    }
+    div.sub-user-info div.sub-user-name,div.user-info div.user-name{
+      color:var(--GuideBarTextColor) !important;
+    }
+    div.user-info{
+      margin-bottom: 0px !important;
+      line-height: 16px;
+      height: 16px;
+    }
+    span.reply-content{
+      color:var(--GuideBarTextColor) !important;
+      font-family: "Roboto", "Arial", sans-serif;
+      font-size: 14px !important;
+      font-weight: 400;
+      line-height: 20px !important;
+    }
+    div.sub-user-info div.sub-user-name[data-user-id="9024239"],div.user-info div.user-name[data-user-id="9024239"]{
+      color:gold !important;
+    }
+    div.sub-reply-avatar{
+      padding-top: 14px !important;
+    }
+    div.home-banner-wrapper{
+        margin:unset;
+        margin-top: 6px;
+    }
+    div.fixed-wrapper{
+        box-sizing:border-box;
+        transition:padding .4s;
+    }
+    div#app{
+        transition:padding .4s;
+    }
+    div.search-layout.clearfix{
+      transition:padding .4s;
+    }
+    main.bili-feed4-layout div.feed2{
+        transition:padding .4s;
+        flex:1;
+        width:0px;
+        height:fit-content;
     }
     main.bili-feed4-layout{
         display:flex;
@@ -359,21 +430,6 @@ NewStyleSheet.innerHTML = `
     div.channel-video.clearfix::-webkit-scrollbar{
       display:initial !important;
     }
-    :root{
-        --GuideBarOnSelecting:#F2F2F2;
-        --GuideBarTextColor:#4f584f;
-        --GuideBarOnSelectHoverBG:#E6E6E6;
-        --GuideBarHover:#f2f2f2;
-        --GuideBarSpiltorBG:#E5E5E5;
-        --GuideBarSubTextColor:#606060;
-        --MikuColor:#39c5bb;
-        --NewContentPoint:#39c5bb;
-        --v_brand_blue:var(--MikuColor);
-        --brand_blue:var(--MikuColor);
-        --bili-rich-text-link-color-hover:var(--MikuColor);
-        --Lb6:#67c0ba;
-        --Lb7:var(--MikuColor);
-        }
     .bili-header .right-entry__outside .right-entry-icon{
         color:var(--GuideBarTextColor) !important;
     }
@@ -397,6 +453,152 @@ NewStyleSheet.innerHTML = `
     #page-index .video .content .small-item{
       padding:0px !important;
       margin:10px !important;
+    }
+    div.palette-button-outer{
+        pointer-events:unset;
+    }
+    div.palette-button-inner{
+        display:none !important;
+    }
+    div#app .left-container{
+        width:0px;
+        flex:1;
+    }
+    h3.bili-video-card__info--tit a{
+      color: var(--GuideBarTextColor) !important;
+      font-size: 16px !important;
+      line-height: 22px !important;
+      padding-right:0px !important;
+    }
+    a.bili-video-card__info--owner{
+      color:var(--GuideBarSubTextColor);
+    }
+    .bili-video-card a:not(.disable-hover):hover {
+      color:var(--GuideBarTextColor) !important;
+    }
+    div.feed-roll-btn{
+      top:20px !important;
+    }
+    main.channel-layout{
+      padding:unset;
+      box-sizing:border-box;
+      padding:6px;
+    }
+    div.palette-button-outer{
+        pointer-events:unset;
+    }
+    div.palette-button-inner{
+        display:none !important;
+    }
+    div#app .left-container{
+        width:0px;
+        flex:1;
+    }
+    h3.bili-video-card__info--tit a{
+      color: var(--GuideBarTextColor) !important;
+      font-size: 16px !important;
+      line-height: 22px !important;
+      padding-right:0px !important;
+    }
+    a.bili-video-card__info--owner{
+      color:var(--GuideBarSubTextColor);
+    }
+    .bili-video-card a:not(.disable-hover):hover {
+      color:var(--GuideBarTextColor) !important;
+    }
+    div.feed-roll-btn{
+      top:20px !important;
+    }
+        div.feed-card{
+        margin-top:22px !important;
+    }
+    div.wrapper{
+        margin:unset;
+        width:100% !important;
+    } 
+    div#page-index{
+        display:flex !important;
+    }
+    div#page-index .col-1{
+        flex:1;
+        margin-right: 10px;
+    }
+    div.fixed-wrapper.fixed-wrapper-sticky.fixed-wrapper-shown{
+        display:none !important;
+    }
+    div#page-dynamic{
+      display:flex !important;
+    }
+    div#page-dynamic .col-1{
+      width:0px !important;
+      flex:1;
+    }
+    div.col-full.clearfix{
+      display:flex;
+    }
+    .contribution-sidenav~.main-content{
+      width:0px !important;
+      flex:1;
+    }
+    div.fav-main.section{
+      width:0px !important;
+      flex:1;
+    }
+    #page-bangumi .content{
+      width:unset !important;
+    }
+    #page-setting .setting-privacy{
+      justify-content:space-between;
+    }
+    #page-fav .fav-main .fav-video-list{
+      margin: 0px !important;
+      display:flex !important;
+      flex-wrap:wrap;
+      justify-content:center;
+    }
+    div#bilibili-player:not(.mode-webscreen){
+      width:unset !important;
+    }
+    div.user-info:not(.section){
+      margin-bottom: 0px !important;
+      line-height: 16px;
+      height: 16px;
+    }
+    #page-video .cube-list{
+      width:100% !important;
+      margin-top: 0px !important;
+      display:flex !important;
+      flex-wrap:wrap;
+      justify-content:center;
+    }
+    li.small-item.fakeDanmu-item{
+      float:none !important;
+      margin:15px !important;
+      padding:0px !important;
+    }
+    li.small-item:not(.fakeDanmu-item){
+      boder:none !important;
+      margin:15px !important;
+    }
+    div.h .h-gradient,div.h .h-inner{
+      background:none !important;
+    }
+    div.h .h-inner{
+      padding-top: 0px !important;
+    }
+    div.h{
+      background:white !important;
+    }
+    div.h #h-name,div.h .h-sign,.h #h-sign{
+      color:var(--GuideBarTextColor) !important;
+    }
+`;
+let StyleNewContent = `
+    *::-webkit-scrollbar {
+        display: none;
+    }
+    main.channel-layout,main.bili-feed4-layout div.feed2,div.search-layout.clearfix,div#app,div.fixed-wrapper{
+        padding-left:246px;
     }
     div.NewGuideBar{
         z-index:10001;
@@ -657,140 +859,8 @@ NewStyleSheet.innerHTML = `
         overflow:hidden;
         box-sizing: border-box;
     }
-    div.feed-card{
-        margin-top:22px !important;
-    }
-    div.wrapper{
-        margin:unset;
-        width:100% !important;
-    } 
-    div#page-index{
-        display:flex !important;
-    }
-    div#page-index .col-1{
-        flex:1;
-        margin-right: 10px;
-    }
-    div.fixed-wrapper.fixed-wrapper-sticky.fixed-wrapper-shown{
-        display:none !important;
-    }
-    div#page-dynamic{
-      display:flex !important;
-    }
-    div#page-dynamic .col-1{
-      width:0px !important;
-      flex:1;
-    }
-    div.col-full.clearfix{
-      display:flex;
-    }
-    .contribution-sidenav~.main-content{
-      width:0px !important;
-      flex:1;
-    }
-    div.fav-main.section{
-      width:0px !important;
-      flex:1;
-    }
-    #page-bangumi .content{
-      width:unset !important;
-    }
-    #page-setting .setting-privacy{
-      justify-content:space-between;
-    }
-    #page-fav .fav-main .fav-video-list{
-      margin: 0px !important;
-      display:flex !important;
-      flex-wrap:wrap;
-      justify-content:center;
-    }
-    div#bilibili-player:not(.mode-webscreen){
-      width:unset !important;
-    }
-    div.user-info:not(.section){
-      margin-bottom: 0px !important;
-      line-height: 16px;
-      height: 16px;
-    }
-    #page-video .cube-list{
-      width:100% !important;
-      margin-top: 0px !important;
-      display:flex !important;
-      flex-wrap:wrap;
-      justify-content:center;
-    }
-    li.small-item.fakeDanmu-item{
-      float:none !important;
-      margin:15px !important;
-      padding:0px !important;
-    }
-    li.small-item:not(.fakeDanmu-item){
-      boder:none !important;
-      margin:15px !important;
-    }
-    div.h .h-gradient,div.h .h-inner{
-      background:none !important;
-    }
-    div.h .h-inner{
-      padding-top: 0px !important;
-    }
-    div.h{
-      background:white !important;
-    }
-    div.h #h-name,div.h .h-sign,.h #h-sign{
-      color:var(--GuideBarTextColor) !important;
-    }
-    
-`;
-const NewStyleSheet_FullFunction = `
-    div#activity_vote,div.toolbar-right-ai.disabled,div.reply-decorate,div.bili-avatar-pendent-dom,div.reply-notice,a.pop-live-small-mode.part-1,div.search-input,a#right-bottom-banner,a#bannerAd{
-      display:none !important;
-    }
-    div.root-reply-avatar{
-      padding-top: 2px !important;
-    }
-    div.sub-user-info div.sub-user-name,div.user-info div.user-name{
-      color:var(--GuideBarTextColor) !important;
-
-    }
-    span.reply-content{
-      color:var(--GuideBarTextColor) !important;
-      font-family: "Roboto", "Arial", sans-serif;
-      font-size: 14px !important;
-      font-weight: 400;
-      line-height: 20px !important;
-    }
-    div.sub-user-info div.sub-user-name[data-user-id="9024239"],div.user-info div.user-name[data-user-id="9024239"]{
-      color:gold !important;
-    }
-    div.sub-reply-avatar{
-      padding-top: 14px !important;
-    }
-    div#biliMainHeader{
-      display:none !important;
-    }
-    div.nav-tool-container.inner-content-wrapper{
-        display:none !important;
-    }
-    div.home-banner-wrapper{
-        margin:unset;
-        margin-top: 6px;
-    }
-    div.fixed-wrapper{
-        box-sizing:border-box;
-        transition:padding .4s;
-    }
-    div#app{
-        transition:padding .4s;
-    }
-    div.search-layout.clearfix{
-      transition:padding .4s;
-    }
-    main.bili-feed4-layout div.feed2{
-        transition:padding .4s;
-        flex:1;
-        width:0px;
-        height:fit-content;
+    div.NewGuideBar.Shrink ~  main.channel-layout{
+      padding-left:6px !important;
     }
     div.NewGuideBar.Shrink ~ div#app{
       padding-left:0px !important;
@@ -803,147 +873,6 @@ const NewStyleSheet_FullFunction = `
     }
     div.NewGuideBar.Shrink ~  div.feed2{
       padding-left:140px !important;
-    }
-    main.channel-layout{
-        padding:unset;
-        box-sizing:border-box;
-        padding:6px;
-    }
-    div.NewGuideBar.Shrink ~  main.channel-layout{
-      padding-left:6px !important;
-    }
-    div.palette-button-outer{
-        pointer-events:unset;
-    }
-    div.palette-button-inner{
-        display:none !important;
-    }
-    div#app .left-container{
-        width:0px;
-        flex:1;
-    }
-    h3.bili-video-card__info--tit a{
-      color: var(--GuideBarTextColor) !important;
-      font-size: 16px !important;
-      line-height: 22px !important;
-      padding-right:0px !important;
-    }
-    a.bili-video-card__info--owner{
-      color:var(--GuideBarSubTextColor);
-    }
-    .bili-video-card a:not(.disable-hover):hover {
-      color:var(--GuideBarTextColor) !important;
-    }
-    div.feed-roll-btn{
-      top:20px !important;
-    }
-`;
-const NewStyleSheet_NotFullFunction = `
-    div#activity_vote,div.toolbar-right-ai.disabled,div.reply-decorate,div.bili-avatar-pendent-dom,div.reply-notice,a.pop-live-small-mode.part-1,div.search-input,a#right-bottom-banner,a#bannerAd{
-      display:none !important;
-    }
-    div.root-reply-avatar{
-      padding-top: 2px !important;
-    }
-    div.sub-user-info div.sub-user-name,div.user-info div.user-name{
-      color:var(--GuideBarTextColor) !important;
-
-    }
-    div.user-info{
-      margin-bottom: 0px !important;
-      line-height: 16px;
-      height: 16px;
-    }
-    span.reply-content{
-      color:var(--GuideBarTextColor) !important;
-      font-family: "Roboto", "Arial", sans-serif;
-      font-size: 14px !important;
-      font-weight: 400;
-      line-height: 20px !important;
-    }
-    div.sub-user-info div.sub-user-name[data-user-id="9024239"],div.user-info div.user-name[data-user-id="9024239"]{
-      color:gold !important;
-    }
-    div.sub-reply-avatar{
-      padding-top: 14px !important;
-    }
-    div#biliMainHeader{
-      min-height:64px !important;
-      height:64px !important;
-      max-height:64px !important;
-    }
-    div.nav-tool-container.inner-content-wrapper{
-        display:none !important;
-    }
-    div.home-banner-wrapper{
-        margin:unset;
-        margin-top: 6px;
-    }
-    div.fixed-wrapper{
-        box-sizing:border-box;
-        padding-left:240px;
-        transition:padding .4s;
-    }
-    div#app{
-        padding-left:240px;
-        transition:padding .4s;
-    }
-    div.search-layout.clearfix{
-      padding-left:240px;
-      transition:padding .4s;
-    }
-    main.bili-feed4-layout div.feed2{
-        padding-left:240px;
-        transition:padding .4s;
-        flex:1;
-        width:0px;
-        height:fit-content;
-    }
-    div.NewGuideBar.Shrink ~ div#app{
-      padding-left:0px !important;
-    }
-    div.NewGuideBar.Shrink ~ div.fixed-wrapper{
-      padding-left:0px !important;
-    }
-    div.NewGuideBar.Shrink ~ div.search-layout.clearfix{
-      padding-left:0px !important;
-    }
-    div.NewGuideBar.Shrink ~  div.feed2{
-      padding-left:140px !important;
-    }
-    main.channel-layout{
-        padding:unset;
-        box-sizing:border-box;
-        padding:6px;
-        padding-left:246px;
-    }
-    div.NewGuideBar.Shrink ~  main.channel-layout{
-      padding-left:6px !important;
-    }
-    div.palette-button-outer{
-        pointer-events:unset;
-    }
-    div.palette-button-inner{
-        display:none !important;
-    }
-    div#app .left-container{
-        width:0px;
-        flex:1;
-    }
-    h3.bili-video-card__info--tit a{
-      color: var(--GuideBarTextColor) !important;
-      font-size: 16px !important;
-      line-height: 22px !important;
-      padding-right:0px !important;
-    }
-    a.bili-video-card__info--owner{
-      color:var(--GuideBarSubTextColor);
-    }
-    .bili-video-card a:not(.disable-hover):hover {
-      color:var(--GuideBarTextColor) !important;
-    }
-    div.feed-roll-btn{
-      top:20px !important;
     }
     div.Popup.Deactive{
       pointer-events:none;
@@ -954,7 +883,7 @@ const NewStyleSheet_NotFullFunction = `
       opacity:0;
       height:0px !important;
       position:absolute;
-      transition:all .4s;
+      transition:opacity .4s;
       background:#fff;
     }
     div.Popup.Active{
@@ -1183,10 +1112,20 @@ const NewStyleSheet_NotFullFunction = `
       opacity:1;
     }
 `;
-NewStyleSheet.innerHTML +=
-  !isFullFunctionMode || Current === "home"
-    ? NewStyleSheet_NotFullFunction
-    : NewStyleSheet_FullFunction;
+let PageStyleSheet = document.querySelector("style");
+if (Current === "home") {
+  PageStyleSheet.innerHTML += (StyleNewContent +StyleModifyOriPage);
+} else {
+  let flag = false;
+  if (!PageStyleSheet) {
+    flag = true;
+    PageStyleSheet = document.createElement("style");
+  }
+  PageStyleSheet.innerHTML += StyleModifyOriPage;
+  if (flag) document.head.appendChild(PageStyleSheet);
+}
+StyleModifyOriPage = null;
+StyleNewContent = null;
 const NewHeadBar = document.createElement("div");
 const GetSearchWords = () => {
   const urlParams = new URLSearchParams(window.location.search);
@@ -1233,7 +1172,9 @@ NewHeadBar.querySelector("form.NewHeadBar-SearchRegion").addEventListener(
     e.preventDefault();
     const keyword = e.target.elements.keyword.value;
     if (keyword) {
-      location.href = `https://www.bilibili.com/#search?keyword=${keyword}`;
+      location.href = `https://www.bilibili.com/#search?keyword=${encodeURIComponent(
+        keyword
+      )}`;
     }
   }
 );
@@ -1495,15 +1436,15 @@ window.FilterSetting = {
     IsEnable: false,
     Limitation: 5000,
   },
-  VideoFilter_BlockByKeywords:{
+  VideoFilter_BlockByKeywords: {
     IsEnable: false,
-    Keywords: []
+    Keywords: [],
   },
-  VideoFilter_BlockByUserMids:{
+  VideoFilter_BlockByUserMids: {
     IsEnable: false,
-    UserMids: []
-  }
-}
+    UserMids: [],
+  },
+};
 const playNumberParser = (playNumber) => {
   if (playNumber.includes("万")) {
     const playNumberWithoutCharacter = playNumber.replace(/[万]/g, "");
@@ -1511,31 +1452,32 @@ const playNumberParser = (playNumber) => {
   } else {
     return parseInt(playNumber);
   }
-}
+};
 onFilterHandler = {
-  VideoFilter_PlayNumber: function(item){
+  VideoFilter_PlayNumber: function (item) {
     // 3中情形: 1、首页 元素第一个 span.bili-video-card__stats--text
     // 2、播放页视频推荐列表 div.playinfo 第一和第二个空格之间
     // 3、用户频道页 span.play的textContent
     // 特殊情形:数字中包含汉字"万"，先提前处理万字
-    DoUntilDone(()=>{
-      const playNumber = item.querySelector(".bili-video-card__stats--text")?.textContent || item.querySelector("div.playinfo")?.textContent.split(" ")[1] || item.querySelector("span.play")?.textContent || "0";
-      if(playNumber === "0") return false;
+    DoUntilDone(() => {
+      const playNumber =
+        item.querySelector(".bili-video-card__stats--text")?.textContent ||
+        item.querySelector("div.playinfo")?.textContent.split(" ")[1] ||
+        item.querySelector("span.play")?.textContent ||
+        "0";
+      if (playNumber === "0") return false;
       const playNumberInt = playNumberParser(playNumber);
-      item.setAttribute("data-filter-checked","true");
-      if(playNumberInt <= FilterSetting.VideoFilter_PlayNumber.Limitation){
+      item.setAttribute("data-filter-checked", "true");
+      if (playNumberInt <= FilterSetting.VideoFilter_PlayNumber.Limitation) {
         item.style.display = "none";
       }
       return true;
-    })
-
+    });
   },
-  
-}
-if(!localStorage.getItem("FilterSetting"))
-  localStorage.setItem("FilterSetting", JSON.stringify(window.FilterSetting))
-else
-window.FilterSetting = JSON.parse(localStorage.getItem("FilterSetting"))
+};
+if (!localStorage.getItem("FilterSetting"))
+  localStorage.setItem("FilterSetting", JSON.stringify(window.FilterSetting));
+else window.FilterSetting = JSON.parse(localStorage.getItem("FilterSetting"));
 NewGuideBar.id = "NewGuideBar";
 NewGuideBar.innerHTML = `
     <div class="NewGuideBar-Square">
@@ -1635,9 +1577,17 @@ NewGuideBar.innerHTML = `
                        VideoFilter_PlayerNumber_Limitation.disabled = !this.checked;
                        FilterSetting.VideoFilter_PlayNumber.Limitation = VideoFilter_PlayerNumber_Limitation.value;
                        localStorage.setItem('FilterSetting', JSON.stringify(FilterSetting));
-                    })()" ${window.FilterSetting.VideoFilter_PlayNumber.IsEnable ? "checked" : ""}>
+                    })()" ${
+                      window.FilterSetting.VideoFilter_PlayNumber.IsEnable
+                        ? "checked"
+                        : ""
+                    }>
                     隐藏播放量低于以下值的视频
-                    <input type="number" id="VideoFilter_PlayerNumber_Limitation" name="VideoFilter_PlayerNumber_Limitation" value="${window.FilterSetting.VideoFilter_PlayNumber.Limitation}" ${window.FilterSetting.VideoFilter_PlayNumber.IsEnable ? "" : "disabled"} onchange="(
+                    <input type="number" id="VideoFilter_PlayerNumber_Limitation" name="VideoFilter_PlayerNumber_Limitation" value="${
+                      window.FilterSetting.VideoFilter_PlayNumber.Limitation
+                    }" ${
+  window.FilterSetting.VideoFilter_PlayNumber.IsEnable ? "" : "disabled"
+} onchange="(
                       ()=>{
                         const VideoFilter_PlayerNumber = document.getElementById('VideoFilter_PlayerNumber');
                         FilterSetting.VideoFilter_PlayNumber.Limitation = this.value;
@@ -1972,7 +1922,7 @@ const PopupController = {
 
 if (Current !== "unknown") {
   BuildPageAfterLoaded().then((target) => {
-    document.head.appendChild(NewStyleSheet);
+    // document.head.appendChild(NewStyleSheet);
     target.insertBefore(NewGuideBar_Holder, target.firstChild);
     if (isFullFunctionMode && Current === "home")
       target.insertBefore(MainWrapper, target.firstChild);
@@ -2190,7 +2140,6 @@ if (Current !== "unknown") {
             localStorage.setItem("BarState", "Hide");
           }
         });
-
       }
 
       const AllaDom = document.querySelectorAll("a");
@@ -2201,34 +2150,53 @@ if (Current !== "unknown") {
       // 若Current为 home 则利用 MutationObserver API 来监听
       if (isFullFunctionMode) {
         const observer = new MutationObserver((mutationsList, observer) => {
+          let nodesToHandle = [];
+
           for (const mutation of mutationsList) {
             if (mutation.type === "childList") {
               mutation.addedNodes.forEach((k) => {
                 if (k.querySelectorAll) {
-                  const AllaDom = k.querySelectorAll("a");
-                  for (const i of AllaDom) {
-                    LinkHandler(i);
-                  }
-                  if(!Locker){
-                    Locker = true;
-                    const AllVideoCards = document.querySelectorAll("div.video-page-card-small:not([data-filter-checked='true']),div.bili-video-card.is-rcmd.enable-no-interest:not([data-filter-checked='true']),div.feed-card:not([data-filter-checked='true'])")
-                    // console.log("Video Cards:",AllVideoCards);
-                    for(const i in FilterSetting){
-                      if(FilterSetting[i].IsEnable && i.startsWith("VideoFilter_") && onFilterHandler[i]){
-                        const Filter = onFilterHandler[i];
-                        for(const j of AllVideoCards){
-                          Filter(j);
-                        }
-                      }
-                    }
-                    Locker = false;
-                  }
-
+                  nodesToHandle.push(...k.querySelectorAll("a"));
                 }
               });
             }
           }
+
+          if (nodesToHandle.length > 0) {
+            // 使用 requestAnimationFrame 或 setTimeout 分批处理
+            const processNodes = () => {
+              const node = nodesToHandle.shift();
+              if (node) {
+                LinkHandler(node);
+                requestAnimationFrame(processNodes); // 或者 setTimeout(processNodes, 0);
+              } else if (!Locker) {
+                Locker = true;
+                const AllVideoCards = document.querySelectorAll(
+                  "div.video-page-card-small:not([data-filter-checked='true'])," +
+                    "div.bili-video-card.is-rcmd.enable-no-interest:not([data-filter-checked='true'])," +
+                    "div.feed-card:not([data-filter-checked='true'])"
+                );
+
+                for (const i in FilterSetting) {
+                  if (
+                    FilterSetting[i].IsEnable &&
+                    i.startsWith("VideoFilter_") &&
+                    onFilterHandler[i]
+                  ) {
+                    const Filter = onFilterHandler[i];
+                    AllVideoCards.forEach((j) => {
+                      Filter(j);
+                    });
+                  }
+                }
+                Locker = false;
+              }
+            };
+
+            processNodes(); // 开始处理节点
+          }
         });
+
         const ObserveMap = {
           home: "div.container.is-version8",
           "profile-collect": "ul.fav-video-list.clearfix.content",
@@ -2238,15 +2206,16 @@ if (Current !== "unknown") {
           "player-bangumi": "div.recommend_wrap__PccwM",
           read: "div.right-side-bar > div.catalog",
         };
+
         if (ObserveMap[Current]) {
           DoUntilDone(() => {
             const target = document.querySelector(ObserveMap[Current]);
             if (!target) return false;
             observer.observe(target, {
-              childList: true, // 观察子元素的添加和移除
-              attributes: false, // 不观察属性变动
-              characterData: false, // 不观察文本内容变动
-              subtree: true, // 仅观察直接子元素，不观察更深层次的子元素
+              childList: true,
+              attributes: false,
+              characterData: false,
+              subtree: false,
             });
             return true;
           });
@@ -2268,12 +2237,12 @@ if (Current !== "unknown") {
         WrappersController["VideoDetailWrapper"].Wrapper.id = "VideoWrapper";
         WrappersController[
           "VideoDetailWrapper"
-        ].Wrapper.style.cssText = `position:absolute;top:100%;left:0px;background:#fff;height:100%;width:100%;transition:all 0.4s ease-in-out;transform:translateY(0%);pointer-events:auto;`;
+        ].Wrapper.style.cssText = `min-width:1550px;will-change:transform, opacity;position:absolute;top:100%;left:0px;background:#fff;height:100%;width:100%;transform:translateY(0%);pointer-events:auto;`;
         const IFrameWrapper = document.createElement("div");
         IFrameWrapper.style.cssText = `position:relative;height:100%;width:100%;`;
         WrappersController[
           "VideoDetailWrapper"
-        ].IFrame.style.cssText = `height:100%;width:100%;border:none;transition:all 0.4s ease-in-out;opacity:0;`;
+        ].IFrame.style.cssText = `height:100%;width:100%;border:none;opacity:0;`;
         IFrameWrapper.appendChild(
           WrappersController["VideoDetailWrapper"].IFrame
         );
@@ -2623,7 +2592,7 @@ if (Current !== "unknown") {
                     type: "updateVideo",
                     current: {
                       videoCurrentTime: playerElement.currentTime,
-                      videoPaused:playerElement.paused
+                      videoPaused: playerElement.paused,
                     },
                   },
                   "*"
@@ -2803,7 +2772,14 @@ const ActionMap = {
 
       if (_Storage["LastVideoTitle"])
         document.title = _Storage["LastVideoTitle"];
-      Wrapper.style.transform = "translateY(-100%)";
+      Object.assign(Wrapper.style, {
+        display: "block",
+        pointerEvents: "auto",
+        transition:
+          "transition: transform 0.4s ease-in-out,opacity 0.5s ease-in-out",
+        transform: "translateY(-100%)",
+      });
+      MainPage.style.display = "none";
       if (
         (!IFrame || !IFrame.src.includes(`BV${BV}`)) &&
         !_Storage["VideoBV"].AutoLoaded &&
@@ -2813,8 +2789,10 @@ const ActionMap = {
           params.t ? "?t=" + params.t : ""
         }#?AllowPostMessage`;
       } else {
-        IFrame.style.transition = "all 0.6s ease-in-out";
-        IFrame.style.opacity = "1";
+        Object.assign(IFrame.style, {
+          transition: "opacity 0.6s ease-in-out",
+          opacity: "1",
+        });
         WrapperLoadder.style.opacity = "0";
       }
     } else if (params.kid) {
@@ -2842,11 +2820,18 @@ const ActionMap = {
   h: (params) => {
     document.title = _Storage["OTitle"];
     if (Wrapper && IFrame) {
-      Wrapper.style.top = "100%";
-      Wrapper.style.background = "transparent";
-      IFrame.style.transition = "";
-      IFrame.style.opacity = "0";
-      Wrapper.style.transform = "translateY(0%)";
+      MainPage.style.display = "block";
+      Object.assign(Wrapper.style, {
+        display: "none",
+        pointerEvents: "none",
+        transform: "translateY(0%)",
+        top: "100%",
+        background: "transparent",
+      });
+      Object.assign(IFrame.style, {
+        transition: "",
+        opacity: "0",
+      });
     }
     const currentSelecting = document.querySelector(
       "div.NewGuideBar-Item.Selecting"
@@ -2920,8 +2905,10 @@ const ActionMap = {
     if (!IFrame.src.includes("keyword=" + params.keyword)) {
       IFrame.src = `https://search.bilibili.com/all?keyword=${params.keyword}#?AllowPostMessage`;
     } else {
-      IFrame.style.transition = "all 0.6s ease-in-out";
-      IFrame.style.opacity = "1";
+      Object.assign(IFrame.style, {
+        transition: "opacity 0.6s ease-in-out",
+        opacity: "1",
+      });
       WrapperLoadder.style.opacity = "0";
     }
   },
@@ -2959,8 +2946,10 @@ const ActionMap = {
     if (!IFrame.src.includes("mid=" + params.mid)) {
       IFrame.src = `https://space.bilibili.com/${params.mid}#?AllowPostMessage`;
     } else {
-      IFrame.style.transition = "all 0.6s ease-in-out";
-      IFrame.style.opacity = "1";
+      Object.assign(IFrame.style, {
+        transition: "opacity 0.6s ease-in-out",
+        opacity: "1",
+      });
       WrapperLoadder.style.opacity = "0";
     }
   },
@@ -2997,8 +2986,10 @@ const ActionMap = {
     if (!IFrame.src.includes("cid=" + params.cid)) {
       IFrame.src = `https://www.bilibili.com/read/cv${params.cid}#?AllowPostMessage`;
     } else {
-      IFrame.style.transition = "all 0.6s ease-in-out";
-      IFrame.style.opacity = "1";
+      Object.assign(IFrame.style, {
+        transition: "opacity 0.6s ease-in-out",
+        opacity: "1",
+      });
       WrapperLoadder.style.opacity = "0";
     }
   },
@@ -3056,10 +3047,13 @@ if (Current === "home") {
       if (document.title !== data.title) {
         if (CurrentWrapper && data && WrapperMap[data.belong]) {
           WrappersController[WrapperMap[data.belong]].Title = data.title;
-          WrappersController[WrapperMap[data.belong]].IFrame.style.transition =
-            "all 0.6s ease-in-out";
-          WrappersController[WrapperMap[data.belong]].IFrame.style.opacity =
-            "1";
+          Object.assign(
+            WrappersController[WrapperMap[data.belong]].IFrame.style,
+            {
+              transition: "opacity 0.6s ease-in-out",
+              opacity: "1",
+            }
+          );
           WrappersController[WrapperMap[data.belong]].Loaded = true;
           if (CurrentWrapper === WrapperMap[data.belong])
             WrapperLoadder.style.opacity = "0";
@@ -3084,10 +3078,13 @@ if (Current === "home") {
       if (data.bvid && data.title && data.belong) {
         if (CurrentWrapper && WrapperMap[data.belong]) {
           WrappersController[WrapperMap[data.belong]].Title = data.title;
-          WrappersController[WrapperMap[data.belong]].IFrame.style.transition =
-            "all 0.6s ease-in-out";
-          WrappersController[WrapperMap[data.belong]].IFrame.style.opacity =
-            "1";
+          Object.assign(
+            WrappersController[WrapperMap[data.belong]].IFrame.style,
+            {
+              transition: "opacity 0.6s ease-in-out",
+              opacity: "1",
+            }
+          );
           WrappersController[WrapperMap[data.belong]].Loaded = true;
           if (CurrentWrapper === WrapperMap[data.belong])
             WrapperLoadder.style.opacity = "0";
