@@ -1,20 +1,23 @@
 // ==UserScript==
 // @name         BetterUI
 // @namespace    http://tampermonkey.net/
-// @version      0.2.0.2.2
+// @version      0.2.0.2.3
 // @description  优化b站
 // @author       Daiyosei
 // @copyright    2024, Daiyosei (https://github.com/Toukaiteio)
 // @match        https://*.bilibili.com
 // @match        https://*.bilibili.com/*
 // @match        https://*.bilibili.com/*/*
+// @exclude      https://message.bilibili.com/pages/nav/header_sync
+// @exclude      https://www.bilibili.com/correspond/*/*
+// @exclude      *://s1.hdslb.com/*
 // @homepageURL     https://github.com/Toukaiteio/BilibiliBetterUI
 // @supportURL      https://github.com/Toukaiteio/BilibiliBetterUI/issues
 // @downloadURL     https://raw.githubusercontent.com/Toukaiteio/BilibiliBetterUI/master/release/BetterUI.min.user.js
 // @updateURL       https://raw.githubusercontent.com/Toukaiteio/BilibiliBetterUI/master/release/BetterUI.min.user.js
 // @icon         data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
 // @grant        none
-// @run-at       document-end
+// @run-at       document-start
 // ==/UserScript==
 const HomeICON = `<svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24" viewBox="0 0 24 24" width="24" focusable="false" style="pointer-events: none; display: block;"><path d="m12 4.44 7 6.09V20h-4v-6H9v6H5v-9.47l7-6.09m0-1.32-8 6.96V21h6v-6h4v6h6V10.08l-8-6.96z"></path></svg>`;
 const HomeICON_Active = `<svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24" viewBox="0 0 24 24" width="24" focusable="false" style="pointer-events: none; display: block;"><g><path d="M4 21V10.08l8-6.96 8 6.96V21h-6v-6h-4v6H4z"></path></g></svg>`;
@@ -65,6 +68,9 @@ const DoUntilDone = (callBack, times = -1) => {
     }, 100);
   }
 };
+// if no Content-Security-Police Create one
+// <meta http-equiv="Content-Security-Policy" content="style-src 'self' 'unsafe-inline' *.hdslb.com static.geetest.com https://at.alicdn.com;">
+// Check All appendChild
 const CreateWrapper = (WrapperName, LinkTo, CardQuery = "") => {
   WrappersController[WrapperName] = {};
   WrappersController[WrapperName].Card =
@@ -78,7 +84,7 @@ const CreateWrapper = (WrapperName, LinkTo, CardQuery = "") => {
     : "";
   WrappersController[
     WrapperName
-  ].Wrapper.style.cssText = `min-width:1550px;will-change:transform, opacity;position:absolute;top:100%;left:0px;background:#fff;height:100%;width:100%;transform:translateY(0%);pointer-events:auto;`;
+  ].Wrapper.style.cssText = `will-change:transform, opacity;position:absolute;top:100%;left:0px;background:#fff;height:100%;width:100%;transform:translateY(0%);pointer-events:auto;`;
   const IFrameWrapper = document.createElement("div");
   IFrameWrapper.style.cssText = `position:relative;height:100%;width:100%;`;
   WrappersController[
@@ -178,7 +184,6 @@ function LinkHandler(aDom) {
       "data-rhref",
       `#v?BV=${thisBVid}` + (Current === "player" ? "&AutoLoad=true" : "")
     );
-    aDom.removeAttribute("href");
     aDom.removeAttribute("target");
   } else if (aDom.href.includes("space.bilibili.com")) {
     const thisUseMID = aDom.href
@@ -186,7 +191,6 @@ function LinkHandler(aDom) {
       .split("?")[0]
       .split("/")[0];
     aDom.setAttribute("data-rhref", `#profile?mid=${thisUseMID}`);
-    aDom.removeAttribute("href");
     aDom.removeAttribute("target");
   } else if (aDom.href.includes("www.bilibili.com/bangumi/play")) {
     const thisBangumiID = aDom.href
@@ -194,7 +198,6 @@ function LinkHandler(aDom) {
       .split("?")[0]
       .split("/")[0];
     aDom.setAttribute("data-rhref", `#v?kid=${thisBangumiID}`);
-    aDom.removeAttribute("href");
     aDom.removeAttribute("target");
   } else if (aDom.href.includes("www.bilibili.com/read/cv")) {
     const thisReadID = aDom.href
@@ -202,7 +205,6 @@ function LinkHandler(aDom) {
       .split("?")[0]
       .split("/")[0];
     aDom.setAttribute("data-rhref", `#read?cid=${thisReadID}`);
-    aDom.removeAttribute("href");
     aDom.removeAttribute("target");
   } else {
     aDom.removeAttribute("target");
@@ -220,7 +222,6 @@ function LinkHandler(aDom) {
     }
   });
 }
-const MainPage = document.querySelector("main.bili-feed4-layout div.feed2");
 // Get Current Page
 function GetCurrent() {
   for (const i of CleanTimer) {
@@ -284,7 +285,7 @@ function SwitchTo(WrapperItem) {
       "div.NewGuideBar-Item.Selecting"
     );
     if (currentSelecting !== WrappersController[WrapperItem].Card) {
-      currentSelecting.classList.remove("Selecting");
+      if(currentSelecting) currentSelecting.classList.remove("Selecting");
       WrappersController[WrapperItem].Card.classList.add("Selecting");
     }
     if (Wrapper && IFrame) {
@@ -330,19 +331,17 @@ function SwitchTo(WrapperItem) {
       });
       MainPage.style.display = "none";
     }
+    console.log("Switch To: ",WrapperItem);
+    DoUntilDone(()=>{
+      if(!WrappersController[WrapperItem].Title) return false;
+      if(document.title === WrappersController[WrapperItem].Title) return true;
+      if(CurrentWrapper !== WrapperItem) return true;
+      document.title = WrappersController[WrapperItem].Title;
+      return true;
+    },40);
   }
 }
 Current = GetCurrent();
-const PageDetector = setInterval(() => {
-  PageID = location.pathname;
-  if (OpID !== PageID) {
-    Current = GetCurrent();
-    DoClean();
-    setTimeout(() => {
-      document.head.appendChild(NewStyleSheet);
-    }, 500);
-  }
-}, 1000);
 let StyleModifyOriPage = `
     :root{
         --GuideBarOnSelecting:#F2F2F2;
@@ -1113,28 +1112,28 @@ let StyleNewContent = `
     }
 `;
 let PageStyleSheet = document.querySelector("style");
-if (Current === "home") {
-  PageStyleSheet.innerHTML += (StyleNewContent +StyleModifyOriPage);
-} else {
-  let flag = false;
-  if (!PageStyleSheet) {
-    flag = true;
-    PageStyleSheet = document.createElement("style");
-  }
-  PageStyleSheet.innerHTML += StyleModifyOriPage;
-  if (flag) document.head.appendChild(PageStyleSheet);
-}
-StyleModifyOriPage = null;
-StyleNewContent = null;
-const NewHeadBar = document.createElement("div");
-const GetSearchWords = () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const keyword = urlParams.get("keyword");
-  return keyword;
-};
 
-NewHeadBar.classList.add("NewHeadBar");
-NewHeadBar.innerHTML = `
+
+let MainPage,
+  NewHeadBar,
+  NewGuideBar,
+  WrapperContainer,
+  MainWrapper,
+  SubWrapper,
+  LoaderStyleSheet,
+  WrapperLoadder,
+  NewGuideBar_Holder;
+// Excute Only On Home Page
+if (Current === "home") {
+  DoUntilDone(()=>{
+    MainPage = document.querySelector("main.bili-feed4-layout div.feed2");
+    if(!MainPage) return false;
+    return true;
+  })
+  
+  NewHeadBar = document.createElement("div");
+  NewHeadBar.classList.add("NewHeadBar");
+  NewHeadBar.innerHTML = `
     <div class="NewHeadBar-Logo">
       <div class="MenuICON HeadBar-ICON" id="MenuSwitch">
         ${MenuICON}
@@ -1166,50 +1165,21 @@ NewHeadBar.innerHTML = `
         </div>
     </div>
 `;
-NewHeadBar.querySelector("form.NewHeadBar-SearchRegion").addEventListener(
-  "submit",
-  (e) => {
-    e.preventDefault();
-    const keyword = e.target.elements.keyword.value;
-    if (keyword) {
-      location.href = `https://www.bilibili.com/#search?keyword=${encodeURIComponent(
-        keyword
-      )}`;
+  NewHeadBar.querySelector("form.NewHeadBar-SearchRegion").addEventListener(
+    "submit",
+    (e) => {
+      e.preventDefault();
+      const keyword = e.target.elements.keyword.value;
+      if (keyword) {
+        location.href = `https://www.bilibili.com/#search?keyword=${encodeURIComponent(
+          keyword
+        )}`;
+      }
     }
-  }
-);
-const NewGuideBar = document.createElement("div");
-// create Observer to observe the new card
-const ObjectObserver = new MutationObserver((mutations) => {
-  mutations.addedNodes.forEach((node) => {
-    if (node.getAttribute("data-drag-flag") !== "false") {
-      node.setAttribute("draggable", true);
-    }
-  });
-});
-const NewGuideBar_Holder = document.createElement("div");
-NewGuideBar_Holder.style.cssText = `
-z-index:5;
-box-sizing: border-box;
-position:fixed;
-top:64px;
-left:0px;
-width:240px;
-height:100%;
-color:var(--GuideBarTextColor);
-font-family:"Roboto", Arial, sans-serif;
-padding-right:11px;
-font-size:14px;
-background:#fff;
-font-weight:500;
-transition:transform .6s;
-pointer-events:auto;
-transform:translateX(0%);
-display:none;
-`;
-NewGuideBar_Holder.classList.add("NewGuideBar");
-const MainWrapper = document.createElement("div");
-MainWrapper.style.cssText = `
+  );
+  NewGuideBar = document.createElement("div");
+  MainWrapper = document.createElement("div");
+  MainWrapper.style.cssText = `
 height:100vh;
 width:100vw;
 position:fixed;
@@ -1221,22 +1191,22 @@ flex-wrap:wrap;
 flex-direction:column;
 z-index:10;
 `;
-MainWrapper.appendChild(NewHeadBar);
-const SubWrapper = document.createElement("div");
-SubWrapper.style.cssText = `
+  MainWrapper.appendChild(NewHeadBar);
+  SubWrapper = document.createElement("div");
+  SubWrapper.style.cssText = `
 width:100%;
 height:0px;
 flex:1;
 display:flex;
 `;
-WrapperContainer = document.createElement("div");
-WrapperContainer.style.cssText = `
+  WrapperContainer = document.createElement("div");
+  WrapperContainer.style.cssText = `
     height:100%;
     width:0px;
     flex:1;
     position:relative;
 `;
-WrapperContainer.innerHTML = `
+  WrapperContainer.innerHTML = `
     <div class="loader" id="Loader" style="opacity:0;">
       <div class="layer a2"><div class="triangle t2"></div></div>
       <div class="layer pacman">
@@ -1249,12 +1219,12 @@ WrapperContainer.innerHTML = `
       <div class="layer a1"><div class="triangle"></div></div>
     </div>
 `;
-const WrapperLoadder = WrapperContainer.querySelector("div#Loader.loader");
-SubWrapper.appendChild(NewGuideBar);
-SubWrapper.appendChild(WrapperContainer);
-const LoaderStyleSheet = document.createElement("style");
-WrapperContainer.appendChild(LoaderStyleSheet);
-LoaderStyleSheet.innerHTML = `
+  WrapperLoadder = WrapperContainer.querySelector("div#Loader.loader");
+  SubWrapper.appendChild(NewGuideBar);
+  SubWrapper.appendChild(WrapperContainer);
+  LoaderStyleSheet = document.createElement("style");
+  WrapperContainer.appendChild(LoaderStyleSheet);
+  LoaderStyleSheet.innerHTML = `
       .pacman > div:first-of-type,
       .pacman > div:nth-child(2) {
         width: 0;
@@ -1426,60 +1396,25 @@ LoaderStyleSheet.innerHTML = `
         height: 100%;
         width: 100%;
       }`;
+  MainWrapper.appendChild(SubWrapper);
+  NewGuideBar.classList.add("NewGuideBar");
 
-MainWrapper.appendChild(SubWrapper);
-NewGuideBar.classList.add("NewGuideBar");
-if (Current === "player" || localStorage.getItem("BarState") === "Hide")
-  NewGuideBar.classList.add("Shrink");
-window.FilterSetting = {
-  VideoFilter_PlayNumber: {
-    IsEnable: false,
-    Limitation: 5000,
-  },
-  VideoFilter_BlockByKeywords: {
-    IsEnable: false,
-    Keywords: [],
-  },
-  VideoFilter_BlockByUserMids: {
-    IsEnable: false,
-    UserMids: [],
-  },
-};
-const playNumberParser = (playNumber) => {
-  if (playNumber.includes("万")) {
-    const playNumberWithoutCharacter = playNumber.replace(/[万]/g, "");
-    return parseFloat(playNumberWithoutCharacter) * 10000;
-  } else {
-    return parseInt(playNumber);
-  }
-};
-onFilterHandler = {
-  VideoFilter_PlayNumber: function (item) {
-    // 3中情形: 1、首页 元素第一个 span.bili-video-card__stats--text
-    // 2、播放页视频推荐列表 div.playinfo 第一和第二个空格之间
-    // 3、用户频道页 span.play的textContent
-    // 特殊情形:数字中包含汉字"万"，先提前处理万字
-    DoUntilDone(() => {
-      const playNumber =
-        item.querySelector(".bili-video-card__stats--text")?.textContent ||
-        item.querySelector("div.playinfo")?.textContent.split(" ")[1] ||
-        item.querySelector("span.play")?.textContent ||
-        "0";
-      if (playNumber === "0") return false;
-      const playNumberInt = playNumberParser(playNumber);
-      item.setAttribute("data-filter-checked", "true");
-      if (playNumberInt <= FilterSetting.VideoFilter_PlayNumber.Limitation) {
-        item.style.display = "none";
-      }
-      return true;
-    });
-  },
-};
-if (!localStorage.getItem("FilterSetting"))
-  localStorage.setItem("FilterSetting", JSON.stringify(window.FilterSetting));
-else window.FilterSetting = JSON.parse(localStorage.getItem("FilterSetting"));
-NewGuideBar.id = "NewGuideBar";
-NewGuideBar.innerHTML = `
+  window.FilterSetting = {
+    VideoFilter_PlayNumber: {
+      IsEnable: false,
+      Limitation: 5000,
+    },
+    VideoFilter_BlockByKeywords: {
+      IsEnable: false,
+      Keywords: [],
+    },
+    VideoFilter_BlockByUserMids: {
+      IsEnable: false,
+      UserMids: [],
+    },
+  };
+  NewGuideBar.id = "NewGuideBar";
+  NewGuideBar.innerHTML = `
     <div class="NewGuideBar-Square">
         <div class="NewGuideBar-Item${
           Current === "home" ? " Selecting" : ""
@@ -1586,8 +1521,8 @@ NewGuideBar.innerHTML = `
                     <input type="number" id="VideoFilter_PlayerNumber_Limitation" name="VideoFilter_PlayerNumber_Limitation" value="${
                       window.FilterSetting.VideoFilter_PlayNumber.Limitation
                     }" ${
-  window.FilterSetting.VideoFilter_PlayNumber.IsEnable ? "" : "disabled"
-} onchange="(
+    window.FilterSetting.VideoFilter_PlayNumber.IsEnable ? "" : "disabled"
+  } onchange="(
                       ()=>{
                         const VideoFilter_PlayerNumber = document.getElementById('VideoFilter_PlayerNumber');
                         FilterSetting.VideoFilter_PlayNumber.Limitation = this.value;
@@ -1620,6 +1555,68 @@ NewGuideBar.innerHTML = `
     </div>
     
 `;
+}
+NewGuideBar_Holder = document.createElement("div");
+NewGuideBar_Holder.style.cssText = `
+z-index:5;
+box-sizing: border-box;
+position:fixed;
+top:64px;
+left:0px;
+width:240px;
+height:100%;
+color:var(--GuideBarTextColor);
+font-family:"Roboto", Arial, sans-serif;
+padding-right:11px;
+font-size:14px;
+background:#fff;
+font-weight:500;
+transition:transform .6s;
+pointer-events:auto;
+transform:translateX(0%);
+display:none;
+`;
+NewGuideBar_Holder.classList.add("NewGuideBar");
+const GetSearchWords = () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const keyword = urlParams.get("keyword");
+  return keyword;
+};
+
+const playNumberParser = (playNumber) => {
+  if (playNumber.includes("万")) {
+    const playNumberWithoutCharacter = playNumber.replace(/[万]/g, "");
+    return parseFloat(playNumberWithoutCharacter) * 10000;
+  } else {
+    return parseInt(playNumber);
+  }
+};
+onFilterHandler = {
+  VideoFilter_PlayNumber: function (item) {
+    // 3中情形: 1、首页 元素第一个 span.bili-video-card__stats--text
+    // 2、播放页视频推荐列表 div.playinfo 第一和第二个空格之间
+    // 3、用户频道页 span.play的textContent
+    // 特殊情形:数字中包含汉字"万"，先提前处理万字
+    DoUntilDone(() => {
+      const playNumber =
+        item.querySelector(".bili-video-card__stats--text")?.textContent ||
+        item.querySelector("div.playinfo")?.textContent.split(" ")[1] ||
+        item.querySelector("span.play")?.textContent ||
+        "0";
+      if (playNumber === "0") return false;
+      const playNumberInt = playNumberParser(playNumber);
+      item.setAttribute("data-filter-checked", "true");
+      if (playNumberInt <= FilterSetting.VideoFilter_PlayNumber.Limitation) {
+        item.style.display = "none";
+      }
+      return true;
+    });
+  },
+};
+if (!localStorage.getItem("FilterSetting"))
+  localStorage.setItem("FilterSetting", JSON.stringify(window.FilterSetting));
+else window.FilterSetting = JSON.parse(localStorage.getItem("FilterSetting"));
+
 const DoClean = () => {
   PageID = location.pathname;
   OpID = PageID;
@@ -2141,7 +2138,19 @@ if (Current !== "unknown") {
           }
         });
       }
-
+      if (Current === "home") {
+        PageStyleSheet = document.createElement("style");
+        PageStyleSheet.innerHTML += StyleNewContent + StyleModifyOriPage;
+        StyleModifyOriPage = null;
+        StyleNewContent = null;
+        document.head.appendChild(PageStyleSheet);
+      } else {
+        PageStyleSheet = document.createElement("style");
+        PageStyleSheet.innerHTML += StyleModifyOriPage;
+        StyleModifyOriPage = null;
+        StyleNewContent = null;
+        document.head.appendChild(PageStyleSheet);
+      }
       const AllaDom = document.querySelectorAll("a");
       for (const i of AllaDom) {
         LinkHandler(i);
@@ -2222,6 +2231,7 @@ if (Current !== "unknown") {
         }
       }
       if (Current !== "home" && isFullFunctionMode) {
+        console.log("Posting New Title",{ type: "ut", title: document.title, belong: Current });
         if (isAllowPostMessage)
           window.parent.postMessage(
             { type: "ut", title: document.title, belong: Current },
@@ -2237,12 +2247,13 @@ if (Current !== "unknown") {
         WrappersController["VideoDetailWrapper"].Wrapper.id = "VideoWrapper";
         WrappersController[
           "VideoDetailWrapper"
-        ].Wrapper.style.cssText = `min-width:1550px;will-change:transform, opacity;position:absolute;top:100%;left:0px;background:#fff;height:100%;width:100%;transform:translateY(0%);pointer-events:auto;`;
+        ].Wrapper.style.cssText = `will-change:transform, opacity;position:absolute;top:100%;left:0px;background:#fff;height:100%;width:100%;transform:translateY(0%);pointer-events:auto;`;
         const IFrameWrapper = document.createElement("div");
         IFrameWrapper.style.cssText = `position:relative;height:100%;width:100%;`;
         WrappersController[
           "VideoDetailWrapper"
         ].IFrame.style.cssText = `height:100%;width:100%;border:none;opacity:0;`;
+
         IFrameWrapper.appendChild(
           WrappersController["VideoDetailWrapper"].IFrame
         );
@@ -3016,8 +3027,7 @@ function loadHash() {
   }
 }
 // #v?BV=1Zw4m1k7G4
-
-window.addEventListener("hashchange", loadHash);
+if (Current === "home") window.addEventListener("hashchange", loadHash);
 
 const WrapperMap = {
   bangumi: "AnimeWrapper",
@@ -3044,23 +3054,22 @@ if (Current === "home") {
         location.href = location.origin + `/#v?BV=${data.bvid}`; // 改变父页面的URL
       }
     } else if (data.type === "ut") {
-      if (document.title !== data.title) {
-        if (CurrentWrapper && data && WrapperMap[data.belong]) {
-          WrappersController[WrapperMap[data.belong]].Title = data.title;
-          Object.assign(
-            WrappersController[WrapperMap[data.belong]].IFrame.style,
-            {
-              transition: "opacity 0.6s ease-in-out",
-              opacity: "1",
-            }
-          );
-          WrappersController[WrapperMap[data.belong]].Loaded = true;
-          if (CurrentWrapper === WrapperMap[data.belong])
-            WrapperLoadder.style.opacity = "0";
-          if (WrappersController[CurrentWrapper])
-            document.title = WrappersController[CurrentWrapper].Title;
-        }
+      if (data && WrapperMap[data.belong]) {
+        WrappersController[WrapperMap[data.belong]].Title = data.title;
+        Object.assign(
+          WrappersController[WrapperMap[data.belong]].IFrame.style,
+          {
+            transition: "opacity 0.6s ease-in-out",
+            opacity: "1",
+          }
+        );
+        WrappersController[WrapperMap[data.belong]].Loaded = true;
+        if (Current && CurrentWrapper === WrapperMap[data.belong])
+          WrapperLoadder.style.opacity = "0";
+        if (Current && WrappersController[CurrentWrapper])
+          document.title = WrappersController[CurrentWrapper].Title;
       }
+      if(data.belong === "profile-collect") console.log(CurrentWrapper , data , WrapperMap[data.belong],WrappersController[WrapperMap[data.belong]]);
     } else if (data.type === "np") {
       if (data.cover) {
         VideoManagement.videoCover = data.cover;
